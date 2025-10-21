@@ -56,3 +56,10 @@ target/
 
 # SublimeText
 *.sublime-*
+
+# UV
+.venv
+uv.lock
+
+# VSCode
+.vscode
