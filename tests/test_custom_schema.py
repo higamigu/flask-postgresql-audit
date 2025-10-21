@@ -4,7 +4,7 @@ import pytest
 import sqlalchemy as sa
 from sqlalchemy.orm import declarative_base
 
-from postgresql_audit import VersioningManager
+from flask_postgresql_audit import VersioningManager
 
 from .utils import last_activity
 

@@ -7,7 +7,7 @@ from flask import Flask
 from flask_login import FlaskLoginClient, LoginManager
 from flask_sqlalchemy import SQLAlchemy
 
-from postgresql_audit.flask import activity_values, VersioningManager
+from flask_postgresql_audit.flask import activity_values, VersioningManager
 
 
 @pytest.fixture

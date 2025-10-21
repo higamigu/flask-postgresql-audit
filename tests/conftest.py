@@ -6,7 +6,7 @@ import sqlalchemy as sa
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import close_all_sessions, declarative_base, sessionmaker
 
-from postgresql_audit import VersioningManager
+from flask_postgresql_audit import VersioningManager
 
 
 @pytest.fixture
