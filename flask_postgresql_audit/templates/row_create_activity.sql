@@ -1,9 +1,9 @@
 CREATE OR REPLACE FUNCTION ${schema_prefix}create_activity() RETURNS TRIGGER AS $$
 DECLARE
-    audit_row ${schema_prefix}activity;
+    audit_row ${schema_prefix}pga_activity;
     excluded_cols text[] = ARRAY[]::text[];
 BEGIN
-    audit_row.id = nextval('${schema_prefix}activity_id_seq');
+    audit_row.id = nextval('${schema_prefix}pga_activity_id_seq');
     audit_row.schema_name = TG_TABLE_SCHEMA::text;
     audit_row.table_name = TG_TABLE_NAME::text;
     audit_row.relid = TG_RELID;
@@ -11,10 +11,9 @@ BEGIN
     audit_row.native_transaction_id = txid_current();
     audit_row.transaction_id = (
         SELECT id
-        FROM ${schema_prefix}transaction
-        WHERE
-            native_transaction_id = txid_current() AND
-            issued_at >= (NOW() - INTERVAL '1 day')
+        FROM ${schema_prefix}pga_transaction
+        WHERE native_transaction_id = txid_current()
+            AND issued_at >= (NOW() - INTERVAL '1 day')
         ORDER BY issued_at DESC
         LIMIT 1
     );
@@ -40,7 +39,7 @@ BEGIN
     ELSIF (TG_OP = 'INSERT' AND TG_LEVEL = 'ROW') THEN
         audit_row.changed_data = row_to_json(NEW.*)::jsonb - excluded_cols;
     END IF;
-    INSERT INTO ${schema_prefix}activity VALUES (audit_row.*);
+    INSERT INTO ${schema_prefix}pga_activity VALUES (audit_row.*);
     RETURN NULL;
 END;
 $$
