@@ -9,7 +9,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
-from .alembic import register_triggers, setup_schema
+from .alembic import register_triggers, setup_db
 from .models import activity_model_factory, transaction_model_factory
 from .typing import AnyAttrribute
 from .utils import load_template
@@ -100,7 +100,7 @@ def _default_client_addr() -> str | None:
 class PostgreSQLAudit:
     pg_audit_classes: set[type[Audit]]
     pg_audit_enabled: bool
-    pg_audit_triggers: set[ReplaceableEntity]
+    pg_audit_entities: set[ReplaceableEntity]
 
     def __init__(
         self,
@@ -171,7 +171,7 @@ class PostgreSQLAudit:
             )
 
     @property
-    def actor_cls(self):
+    def actor_cls(self) -> type | None:
         if isinstance(self._actor_cls, str):
             if not self.Base:
                 raise ImproperlyConfigured(
@@ -179,7 +179,7 @@ class PostgreSQLAudit:
                     "Call init method to set up this manager."
                 )
             try:
-                return self.Base.registry._class_registry[self._actor_cls]
+                return self.Base.registry._class_registry[self._actor_cls]  # type: ignore
             except KeyError:
                 raise ImproperlyConfigured(
                     "Could not build relationship between PGAuditActivity"
@@ -199,20 +199,33 @@ class PostgreSQLAudit:
         event.remove(orm.Session, "do_orm_execute", self.receive_do_orm_execute)
 
     def register_triggers(self):
-        register_triggers(audit_classes=self.pg_audit_classes, **self.context)
+        register_triggers(self)
 
-    def init(self, app: Flask, db: SQLAlchemy):
-        setup_schema(**self.context)
+    def setup_db(self):
+        setup_db(self)
 
+    def init_app(self, app: Flask, db: SQLAlchemy, **kwargs):
         self.pg_audit_enabled = True
-        self.pg_audit_triggers = set()
+        self.pg_audit_entities = set()
 
         self.Base: type["orm.DeclarativeBase"] = db.Model  # type: ignore
-        self.pg_audit_classes = get_audit_models(self.Base.registry)
 
-        self.Transaction = transaction_model_factory(self.Base)
-        self.Activity = activity_model_factory(self.Base, self.Transaction)
+        self.Transaction = transaction_model_factory(
+            self.Base,
+            actor_cls=self.actor_cls,
+            schema_name=self.schema_name,
+            **kwargs,
+        )
 
+        self.Activity = activity_model_factory(
+            self.Base,
+            transaction_cls=self.Transaction,
+            schema_name=self.schema_name,
+            **kwargs,
+        )
+
+        self.setup_db()
         self.attach_listeners()
 
+        self.pg_audit_classes = get_audit_models(self.Base.registry)
         app.extensions["postgresql-audit"] = self
