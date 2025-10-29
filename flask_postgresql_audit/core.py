@@ -224,8 +224,9 @@ class PostgreSQLAudit:
             **kwargs,
         )
 
+        self.pg_audit_classes = get_audit_models(self.Base.registry)
+
         self.setup_db()
         self.attach_listeners()
 
-        self.pg_audit_classes = get_audit_models(self.Base.registry)
         app.extensions["postgresql-audit"] = self
