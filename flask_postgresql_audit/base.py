@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import BigInteger, Text, func, text
@@ -18,7 +18,7 @@ class ActivityBase:
     table_name: OMap[str] = mapped_column(Text)
 
     relid: OMap[int]
-    issued_at: OMap[date]
+    issued_at: OMap[datetime]
     native_transaction_id: OMap[int] = mapped_column(BigInteger, index=True)
     verb: OMap[str] = mapped_column(Text)
 
@@ -37,7 +37,7 @@ class TransactionBase:
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     native_transaction_id: OMap[int] = mapped_column(BigInteger)
-    issued_at: OMap[date]
+    issued_at: OMap[datetime]
     client_addr: OMap[str] = mapped_column(INET)
 
     @classmethod
