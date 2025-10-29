@@ -63,9 +63,9 @@ def get_audit_models(registry: orm.registry):
 
 
 def is_object_modified(obj: object):
-    if isinstance(obj, orm.DeclarativeBase) and isinstance(obj, Audit):
+    if isinstance(obj, Audit):
         excluded = set(obj.__class__.__audit_args__.get("exclude", []))
-        modified = {col.name for col in get_modified_columns(obj)}
+        modified = {col.name for col in get_modified_columns(obj)}  # type: ignore
         return bool(modified - excluded)
     return False
 
