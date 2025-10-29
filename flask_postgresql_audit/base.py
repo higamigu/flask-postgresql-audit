@@ -14,7 +14,7 @@ class ActivityBase:
         transaction: Mapped["TransactionBase"]
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    schema: OMap[str] = mapped_column(Text)
+    schema_name: OMap[str] = mapped_column(Text)
     table_name: OMap[str] = mapped_column(Text)
 
     relid: OMap[int]
