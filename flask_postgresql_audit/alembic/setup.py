@@ -66,8 +66,12 @@ def register_triggers(audit: "PostgreSQLAudit"):
     for cls in audit.pg_audit_classes:
         exclude = cls.__audit_args__.get("exclude", [])
 
-        ctx = dict(table_name=cls.__tablename__, **audit.context)
-        ctx["excluded_columns"] = "'{" + ",".join(exclude) + "}'"
+        ctx = dict(
+            table_name=cls.__tablename__,
+            table_schema=cls.__table__.schema or "public",
+            excluded_columns="'{" + ",".join(exclude) + "}'",
+            **audit.context,
+        )
 
         audit.pg_audit_entities.add(entities.trigger_insert_factory(**ctx))
         audit.pg_audit_entities.add(entities.trigger_update_factory(**ctx))
