@@ -8,6 +8,7 @@ from alembic_utils.replaceable_entity import ReplaceableEntity
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.util import OrderedSet
 
 from .alembic import register_triggers, setup_db
 from .models import activity_model_factory, transaction_model_factory
@@ -100,7 +101,7 @@ def _default_client_addr() -> str | None:
 class PostgreSQLAudit:
     pg_audit_classes: set[type[Audit]]
     pg_audit_enabled: bool
-    pg_audit_entities: set[ReplaceableEntity]
+    pg_audit_entities: OrderedSet[ReplaceableEntity]
 
     def __init__(
         self,
@@ -206,7 +207,7 @@ class PostgreSQLAudit:
 
     def init_app(self, app: Flask, db: SQLAlchemy, **kwargs):
         self.pg_audit_enabled = True
-        self.pg_audit_entities = set()
+        self.pg_audit_entities = OrderedSet()
 
         self.Base: type["orm.DeclarativeBase"] = db.Model  # type: ignore
 
