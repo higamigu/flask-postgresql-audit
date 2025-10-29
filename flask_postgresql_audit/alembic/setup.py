@@ -31,18 +31,23 @@ def setup_db(audit: "PostgreSQLAudit"):
         upgrade_ops: ops.UpgradeOps,
         schemas: Union[Set[None], Set[Optional[str]]],
     ) -> None:
+        idx = 0
         if connection := autogen_context.connection:
             check_schema = """
                 SELECT TRUE FROM information_schema.schemata
                 WHERE schema_name = '{name}'
             """.format(name=audit.context["schema_name"])
             if not connection.scalar(text(check_schema)):
-                upgrade_ops.ops.insert(0, SchemaCreate(audit.context["schema_name"]))
+                upgrade_ops.ops.insert(idx, SchemaCreate(audit.context["schema_name"]))
+                idx += 1
 
             for ent in audit.pg_audit_entities:
                 if op := get_blind_migration_op(ent, connection):
                     registry._entities.pop(ent.identity)
-                    upgrade_ops.ops.append(op)
+                    if ent.signature == "btree_gist":
+                        upgrade_ops.ops.insert(idx, op)
+                    else:
+                        upgrade_ops.ops.append(op)
 
     for idx, comp_fn in enumerate(comparators._registry.get(("schema", "default"), [])):
         # Insert pg_audit comparators before alembic_utils comparators
