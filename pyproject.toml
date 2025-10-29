@@ -4,7 +4,7 @@
 name = "flask-postgresql_audit"
 dynamic = ["version"]
 description = "Versioning and auditing extension for PostgreSQL and SQLAlchemy."
-readme = "README.rst"
+readme = "README.md"
 license = "bsd-2-clause"
 requires-python = ">=3.11"
 authors = [
