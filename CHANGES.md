@@ -3,9 +3,17 @@
 Here you can see the full list of changes between each Flask-PostgreSQL-Audit
 release.
 
-## 1.0.0 (2025-10-21)
+## 1.0.0 (2025-10-30)
 
--   Forked from PostgreSQL-Audit
+-   Forked from PostgreSQL-Audit.
+-   Rename `VersioningManager` to `PostgreSQLAudit`.
+-   Drop `__versioned__` attribute pattern in favor of `Audit` mixin class.
+-   Use `alembic` to make database objects required by pg_audit stateful.
+-   Utilize `alembic_utils` to generate migration operations.
+-   Blindly create newly generated database object
+    to circumvent `alembic_utils` known issue when
+    object depends on another object in same migration, issue: [#41](https://github.com/olirice/alembic_utils/issues/41).
+-   Update README and LICENSE.
 
 ## 0.17.1 (2023-11-06)
 
