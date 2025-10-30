@@ -8,7 +8,7 @@ readme = "README.md"
 license = "bsd-2-clause"
 requires-python = ">=3.11"
 authors = [
-    { name = "Refian Muhammad", email = "higamigu@gmail.com" },
+    { name = "Higamigu", email = "higamigu@gmail.com" },
     { name = "Konsta Vesterinen", email = "konsta@fastmonkeys.com" },
 ]
 classifiers = [
