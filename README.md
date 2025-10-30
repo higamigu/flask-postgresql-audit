@@ -1,8 +1,7 @@
 # Flask-PostgreSQL-Audit
 
 ![BuildStatus](https://github.com/higamigu/flask-postgresql-audit/actions/workflows/test.yml/badge.svg?branch=main)
-[![VersionStatus](https://img.shields.io/pypi/v/PostgreSQL-Audit.svg)](https://pypi.python.org/pypi/PostgreSQL-Audit/)
-[![Downloads](https://img.shields.io/pypi/dm/PostgreSQL-Audit.svg)](https://pypi.python.org/pypi/PostgreSQL-Audit/)
+[![VersionStatus](https://img.shields.io/pypi/v/flask-postgresql-audit.svg)](https://pypi.org/project/flask-postgresql-audit/)
 
 Auditing extension for Flask-SQLAlchemy with PostgreSQL.
 Forked from [PostgreSQL-Audit](https://github.com/kvesteri/postgresql-audit), tries to combine the best of breed from existing solutions such as
@@ -10,15 +9,19 @@ Forked from [PostgreSQL-Audit](https://github.com/kvesteri/postgresql-audit), tr
 [Papertrail](https://github.com/airblade/paper_trail) and especially
 [Audit Trigger by 2ndQuadrant](https://github.com/2ndQuadrant/audit-trigger).
 
--   Stores audit recordss into single table called \'pga_activity\'
--   Uses stateful trigger based approach to keep INSERTs, UPDATEs
+-   Stores audit recordss into single table called `pga_activity`
+-   Uses trigger based approach to keep INSERTs, UPDATEs
     and DELETEs as fast as possible
--   Tracks and stores actor identities into table called \'pga_transaction\'
--   Uses Alembic and Alembic-Utils to generate necessary database objects
+-   Tracks and stores actor identities into table called `pga_transaction`
+-   Uses Alembic and Alembic-Utils to generate necessary database objects for migration
 
 ## Installation
 ```
-uv add
+pip install flask-postgresql-audit
+```
+or using `uv`
+```
+uv add flask-postgresql-audit
 ```
 or install directly from this repo
 ```
