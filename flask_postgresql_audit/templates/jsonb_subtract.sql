@@ -1,10 +1,10 @@
-CREATE FUNCTION jsonb_subtract(arg1 jsonb, arg2 jsonb) RETURNS jsonb AS $$
+CREATE FUNCTION ${schema_prefix}jsonb_subtract(arg1 jsonb, arg2 jsonb) RETURNS jsonb AS $$
 SELECT
     COALESCE(
         json_object_agg(
             KEY,
             CASE WHEN new_type = 'object' AND old_type = 'object'
-                THEN jsonb_subtract(new_value, old_value)
+                THEN ${schema_prefix}jsonb_subtract(new_value, old_value)
             ELSE new_value END
         ),
         '{}'
