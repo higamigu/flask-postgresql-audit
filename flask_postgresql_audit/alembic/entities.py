@@ -56,6 +56,7 @@ def get_setting_factory(**context):
 
 
 def jsonb_subtract_factory(**context):
+    context.setdefault("jsonb_subtract_join_type", "LEFT")
     sql = parse_template("jsonb_subtract.sql", **context)
     return PGFunction(
         schema=context["schema_name"],

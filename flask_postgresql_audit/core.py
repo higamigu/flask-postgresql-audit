@@ -103,6 +103,8 @@ class PostgreSQLAudit:
     pg_audit_enabled: bool
     pg_audit_entities: OrderedSet[ReplaceableEntity]
 
+    options: dict[str, t.Any]
+
     def __init__(
         self,
         *,
@@ -110,6 +112,7 @@ class PostgreSQLAudit:
         actor_id_getter: t.Callable[[], t.Any] = _default_actor_id,
         client_address_getter: t.Callable[[], t.Any] = _default_client_addr,
         schema_name: t.Optional[str] = None,
+        **kw,
     ):
         self._actor_cls = actor_cls
         self.schema_name = schema_name
@@ -117,11 +120,15 @@ class PostgreSQLAudit:
         self.get_actor_id = actor_id_getter
         self.get_client_addr = client_address_getter
 
+        self.options = kw
+
     @property
     def context(self):
         ctx = dict(schema_name=self.schema_name or "public")
         ctx["schema_prefix"] = f"{ctx['schema_name']}."
         ctx["revoke_cmd"] = f"REVOKE ALL ON {ctx['schema_prefix']}activity FROM public;"
+        if "jsonb_subtract_verbose" in self.options:
+            ctx["jsonb_subtract_join_type"] = "FULL"
         return ctx
 
     @contextmanager
