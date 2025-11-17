@@ -9,6 +9,7 @@ class TestCustomSchemaactivityCreation:
     def test_insert(self, user):
         stmt = sa.select(audit.Activity).limit(1)
         if activity := db.session.scalar(stmt):
+            assert activity.row_key == ["1"]
             assert activity.old_data == {}
             assert activity.changed_data == {"id": user.id, "name": "John", "age": 15}
             assert activity.table_name == "user"

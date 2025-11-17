@@ -22,6 +22,7 @@ class ActivityBase:
     native_transaction_id: OMap[int] = mapped_column(BigInteger, index=True)
     verb: OMap[str] = mapped_column(Text)
 
+    row_key: OMap[list[str]] = mapped_column(JSONB, default=[], server_default="[]")
     old_data: OMap[dict] = mapped_column(JSONB, default={}, server_default="{}")
     changed_data: OMap[dict] = mapped_column(JSONB, default={}, server_default="{}")
 

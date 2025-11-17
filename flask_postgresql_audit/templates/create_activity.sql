@@ -20,7 +20,7 @@ BEGIN
     IF (TG_OP = 'UPDATE') THEN
         INSERT INTO ${schema_prefix}pga_activity(
             id, schema_name, table_name, relid, issued_at, native_transaction_id,
-            verb, old_data, changed_data, transaction_id)
+            verb, row_key, old_data, changed_data, transaction_id)
         SELECT
             nextval('${schema_prefix}pga_activity_id_seq') as id,
             TG_TABLE_SCHEMA::text AS schema_name,
@@ -29,6 +29,7 @@ BEGIN
             statement_timestamp() AT TIME ZONE 'UTC' AS issued_at,
             txid_current() AS native_transaction_id,
             LOWER(TG_OP) AS verb,
+            get_pk_values(TG_RELID, new_data) AS row_key,
             old_data - excluded_cols AS old_data,
             ${schema_prefix}jsonb_subtract(new_data, old_data) - excluded_cols AS changed_data,
             _transaction_id AS transaction_id
@@ -48,7 +49,7 @@ BEGIN
     ELSIF (TG_OP = 'INSERT') THEN
         INSERT INTO ${schema_prefix}pga_activity(
             id, schema_name, table_name, relid, issued_at, native_transaction_id,
-            verb, old_data, changed_data, transaction_id)
+            verb, row_key, old_data, changed_data, transaction_id)
         SELECT
             nextval('${schema_prefix}pga_activity_id_seq') as id,
             TG_TABLE_SCHEMA::text AS schema_name,
@@ -57,6 +58,7 @@ BEGIN
             statement_timestamp() AT TIME ZONE 'UTC' AS issued_at,
             txid_current() AS native_transaction_id,
             LOWER(TG_OP) AS verb,
+            get_pk_values(TG_RELID, to_jsonb(new_table)) AS row_key,
             '{}'::jsonb AS old_data,
             row_to_json(new_table.*)::jsonb - excluded_cols AS changed_data,
             _transaction_id AS transaction_id
@@ -64,7 +66,7 @@ BEGIN
     ELSEIF TG_OP = 'DELETE' THEN
         INSERT INTO ${schema_prefix}pga_activity(
             id, schema_name, table_name, relid, issued_at, native_transaction_id,
-            verb, old_data, changed_data, transaction_id)
+            verb, row_key, old_data, changed_data, transaction_id)
         SELECT
             nextval('${schema_prefix}pga_activity_id_seq') as id,
             TG_TABLE_SCHEMA::text AS schema_name,
@@ -73,6 +75,7 @@ BEGIN
             statement_timestamp() AT TIME ZONE 'UTC' AS issued_at,
             txid_current() AS native_transaction_id,
             LOWER(TG_OP) AS verb,
+            get_pk_values(TG_RELID, to_jsonb(old_table)) AS row_key,
             row_to_json(old_table.*)::jsonb - excluded_cols AS old_data,
             '{}'::jsonb AS changed_data,
             _transaction_id AS transaction_id

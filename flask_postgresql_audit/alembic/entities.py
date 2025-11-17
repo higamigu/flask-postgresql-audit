@@ -46,6 +46,15 @@ def trigger_update_factory(**context):
     )
 
 
+def get_pk_values(**context):
+    sql = parse_template("get_pk_values.sql", **context)
+    return PGFunction(
+        schema=context["schema_name"],
+        signature="get_pk_values(relid oid, row_data jsonb)",
+        definition=sql["definition"],
+    )
+
+
 def get_setting_factory(**context):
     sql = parse_template("get_setting.sql", **context)
     return PGFunction(
