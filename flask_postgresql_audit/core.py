@@ -1,5 +1,7 @@
+import inspect
 import typing as t
 from contextlib import contextmanager
+from itertools import groupby
 
 import sqlalchemy as sa
 import sqlalchemy.event as event
@@ -15,7 +17,8 @@ from .models import activity_model_factory, transaction_model_factory
 from .typing import AnyAttrribute
 from .utils import load_template
 
-Base = t.TypeVar("Base", bound=orm.DeclarativeBase)
+if t.TYPE_CHECKING:
+    from sqlalchemy.sql.functions import _FunctionGenerator
 
 
 class ImproperlyConfigured(Exception):
@@ -131,6 +134,12 @@ class PostgreSQLAudit:
             ctx["jsonb_subtract_join_type"] = "FULL"
         return ctx
 
+    @property
+    def func(self) -> "_FunctionGenerator":
+        if self.schema_name and self.schema_name != "public":
+            return getattr(sa.func, self.schema_name)
+        return sa.func
+
     @contextmanager
     def disable(self, session: orm.Session | orm.scoped_session[t.Any]):
         session.execute(self.set_local("'false'"))
@@ -238,3 +247,45 @@ class PostgreSQLAudit:
         self.attach_listeners()
 
         app.extensions["postgresql-audit"] = self
+
+    def fetch_activity(self, obj: type[Audit] | Audit | t.Sequence[Audit]):
+        if inspect.isclass(obj):
+            source = obj
+            activity_join_cond = self.Activity.table_name == source.__tablename__
+        else:
+            objects = list(obj) if isinstance(obj, t.Sequence) else list([obj])
+            unions = []
+            for key, group in groupby(objects, key=lambda o: o.__class__):
+                relid = sa.text(f"'{key.__tablename__}'::regclass::oid")
+                jsonb = sa.func.to_jsonb(key.__table__.table_valued())
+
+                union = sa.select(
+                    sa.literal(key.__tablename__).label("table_name"),
+                    self.func.get_pk_values(relid, jsonb).label("row_key"),
+                )
+
+                for pk in key.__table__.primary_key.columns:
+                    pk_attr: sa.ColumnElement[t.Any] = getattr(key, pk.name)
+                    pks = [getattr(o, pk.name) for o in group]
+                    union = union.filter(pk_attr.in_(pks))
+
+                unions.append(union)
+
+            source = sa.union(*unions).subquery("source")
+            activity_join_cond = sa.and_(
+                self.Activity.table_name == source.c.table_name,
+                self.Activity.row_key == source.c.row_key,
+            )
+
+        stmt = sa.select(
+            self.Activity.id,
+            self.Activity.table_name,
+            self.Activity.issued_at.label("activity_timestamp"),
+            self.Transaction.issued_at.label("transaction_timestamp"),
+            self.Transaction.client_addr.label("transaction_addr"),
+            self.Transaction.actor_id.label("transaction_actor"),
+            self.Activity.old_data,
+            self.Activity.changed_data,
+        ).select_from(source)
+
+        return stmt.join(self.Activity, activity_join_cond).join(self.Transaction)
