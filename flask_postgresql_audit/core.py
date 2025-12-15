@@ -251,7 +251,13 @@ class PostgreSQLAudit:
     def fetch_activity(self, obj: type[Audit] | Audit | t.Sequence[Audit]):
         if inspect.isclass(obj):
             source = obj
-            activity_join_cond = self.Activity.table_name == source.__tablename__
+            relid = sa.text(f"'{source.__tablename__}'::regclass::oid")
+            jsonb = sa.func.to_jsonb(source.__table__.table_valued())
+            activity_join_cond = sa.and_(
+                self.Activity.table_name == source.__tablename__,
+                self.Activity.row_key == self.func.get_pk_values(relid, jsonb),
+            )
+
         else:
             objects = list(obj) if isinstance(obj, t.Sequence) else list([obj])
             unions = []
