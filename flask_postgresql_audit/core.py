@@ -277,15 +277,22 @@ class PostgreSQLAudit:
                 self.Activity.row_key == source.c.row_key,
             )
 
-        stmt = sa.select(
-            self.Activity.id,
-            self.Activity.table_name,
-            self.Activity.issued_at.label("activity_timestamp"),
-            self.Transaction.issued_at.label("transaction_timestamp"),
-            self.Transaction.client_addr.label("transaction_addr"),
-            self.Transaction.actor_id.label("transaction_actor"),
-            self.Activity.old_data,
-            self.Activity.changed_data,
-        ).select_from(source)
+        stmt = (
+            sa.select(
+                self.Activity.id,
+                self.Activity.verb,
+                self.Activity.table_name,
+                self.Activity.issued_at.label("activity_timestamp"),
+                self.Transaction.issued_at.label("transaction_timestamp"),
+                self.Transaction.client_addr.label("transaction_addr"),
+                self.Transaction.actor_id.label("transaction_actor"),
+                self.Activity.old_data,
+                self.Activity.changed_data,
+            )
+            .select_from(source)
+            .join(self.Activity, activity_join_cond)
+            .join(self.Transaction)
+            .order_by(self.Activity.id.desc())
+        )
 
-        return stmt.join(self.Activity, activity_join_cond).join(self.Transaction)
+        return stmt
