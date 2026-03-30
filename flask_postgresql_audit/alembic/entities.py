@@ -55,6 +55,15 @@ def get_pk_values(**context):
     )
 
 
+def get_table_relid(**context):
+    sql = parse_template("get_table_relid.sql", **context)
+    return PGFunction(
+        schema=context["schema_name"],
+        signature="get_table_relid(tablename text)",
+        definition=sql["definition"],
+    )
+
+
 def get_setting_factory(**context):
     sql = parse_template("get_setting.sql", **context)
     return PGFunction(
