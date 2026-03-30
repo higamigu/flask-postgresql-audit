@@ -11,7 +11,7 @@ CREATE OR REPLACE FUNCTION get_pk_values(relid oid, row_data jsonb) RETURNS json
             AND i.indisprimary;
 
         IF pk_columns IS NULL THEN
-            RETURN '{}'::jsonb;
+            RETURN '[]'::jsonb;
         END IF;
 
         SELECT jsonb_agg(row_data->>col) INTO pk_values
