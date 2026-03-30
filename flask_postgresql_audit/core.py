@@ -307,7 +307,6 @@ class PostgreSQLAudit:
         if inspect.isclass(obj):
             class_ = obj
             stmt = stmt.filter(self.Activity.table_name == class_.__tablename__)
-            stmt = stmt.filter(self.Activity.row_key == class_.__audit_rowkey__)
 
         else:
             objects = list(obj) if isinstance(obj, t.Sequence) else list([obj])
