@@ -27,6 +27,12 @@ class ImproperlyConfigured(Exception):
 
 class Audit:
     __audit_args__: dict = {}
+    __audit_schema__: str = ""
+
+    __audit_relid__: orm.Mapped[int]
+    __audit_rowkey__: orm.Mapped[list[str]]
+
+    __audit_configured__: t.ClassVar[bool]
 
     if t.TYPE_CHECKING:
         __table__: sa.Table
@@ -34,9 +40,32 @@ class Audit:
 
         def __init__(self, **kw: t.Any): ...
 
-    def __init_subclass__(cls) -> None:
+    def __init_subclass__(cls, *args, **kwargs) -> None:
         if not hasattr(cls, "__audit_args__"):
             cls.__audit_args__ = {}
+
+        event.listen(orm.Mapper, "mapper_configured", cls.__init_audit__)
+        super().__init_subclass__(*args, **kwargs)
+
+    @classmethod
+    def __init_audit__(cls, mapper: orm.Mapper[t.Self], class_: type[t.Self]):
+        is_configured = getattr(class_, "__audit_configured__", False)
+        has_schema = hasattr(class_, "__audit_schema__")
+        if not is_configured and has_schema:
+            fn_ = sa.func
+            if class_.__audit_schema__ and class_.__audit_schema__ != "public":
+                fn_ = getattr(sa.func, class_.__audit_schema__)
+
+            table = class_.__table__
+            jsonb = sa.func.to_jsonb(table.table_valued())
+
+            relid = orm.column_property(fn_.get_table_relid(class_.__tablename__))
+            rowkey = orm.column_property(fn_.get_pk_values(relid, jsonb))
+
+            mapper.add_property("__audit_relid__", relid)
+            mapper.add_property("__audit_rowkey__", rowkey)
+
+            class_.__audit_configured__ = True
 
 
 def get_modified_columns(obj: orm.DeclarativeBase):
@@ -63,6 +92,14 @@ def get_audit_models(registry: orm.registry):
         if issubclass(mapper.class_, Audit):
             models.add(mapper.class_)
     return models
+
+
+def inject_model_metadata(models: t.Iterable[type[Audit]], **kwargs):
+    kwargs.setdefault("schema", "public")
+
+    for m in models:
+        for k, v in kwargs.items():
+            setattr(m, f"__audit_{k}__", v)
 
 
 def is_object_modified(obj: object):
@@ -242,6 +279,7 @@ class PostgreSQLAudit:
         )
 
         self.pg_audit_classes = get_audit_models(self.Base.registry)
+        inject_model_metadata(self.pg_audit_classes, schema=self.schema_name)
 
         self.setup_db()
         self.attach_listeners()
@@ -249,40 +287,6 @@ class PostgreSQLAudit:
         app.extensions["postgresql-audit"] = self
 
     def fetch_activity(self, obj: type[Audit] | Audit | t.Sequence[Audit]):
-        if inspect.isclass(obj):
-            source = obj
-            relid = sa.text(f"'{source.__tablename__}'::regclass::oid")
-            jsonb = sa.func.to_jsonb(source.__table__.table_valued())
-            activity_join_cond = sa.and_(
-                self.Activity.table_name == source.__tablename__,
-                self.Activity.row_key == self.func.get_pk_values(relid, jsonb),
-            )
-
-        else:
-            objects = list(obj) if isinstance(obj, t.Sequence) else list([obj])
-            unions = []
-            for key, group in groupby(objects, key=lambda o: o.__class__):
-                relid = sa.text(f"'{key.__tablename__}'::regclass::oid")
-                jsonb = sa.func.to_jsonb(key.__table__.table_valued())
-
-                union = sa.select(
-                    sa.literal(key.__tablename__).label("table_name"),
-                    self.func.get_pk_values(relid, jsonb).label("row_key"),
-                )
-
-                for pk in key.__table__.primary_key.columns:
-                    pk_attr: sa.ColumnElement[t.Any] = getattr(key, pk.name)
-                    pks = [getattr(o, pk.name) for o in group]
-                    union = union.filter(pk_attr.in_(pks))
-
-                unions.append(union)
-
-            source = sa.union(*unions).subquery("source")
-            activity_join_cond = sa.and_(
-                self.Activity.table_name == source.c.table_name,
-                self.Activity.row_key == source.c.row_key,
-            )
-
         stmt = (
             sa.select(
                 self.Activity.id,
@@ -295,10 +299,30 @@ class PostgreSQLAudit:
                 self.Activity.old_data,
                 self.Activity.changed_data,
             )
-            .select_from(source)
-            .join(self.Activity, activity_join_cond)
+            .select_from(self.Activity)
             .join(self.Transaction)
             .order_by(self.Activity.id.desc())
         )
+
+        if inspect.isclass(obj):
+            class_ = obj
+            stmt = stmt.filter(self.Activity.table_name == class_.__tablename__)
+            stmt = stmt.filter(self.Activity.row_key == class_.__audit_rowkey__)
+
+        else:
+            objects = list(obj) if isinstance(obj, t.Sequence) else list([obj])
+            conditions = []
+            for class_, objs in groupby(objects, key=lambda o: o.__class__):
+                conditions.append(
+                    sa.and_(
+                        self.Activity.table_name == class_.__tablename__,
+                        self.Activity.row_key.in_([o.__audit_rowkey__ for o in objs]),
+                    )
+                )
+
+            if len(conditions) == 1:
+                stmt = stmt.filter(conditions[0])
+            else:
+                stmt = stmt.filter(sa.or_(*conditions))
 
         return stmt
