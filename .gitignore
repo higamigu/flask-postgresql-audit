@@ -63,3 +63,6 @@ uv.lock
 
 # VSCode
 .vscode
+
+# Agents
+.agents
