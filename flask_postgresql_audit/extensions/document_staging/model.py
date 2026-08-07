@@ -2,9 +2,8 @@ import typing as t
 from datetime import datetime
 
 import sqlalchemy as sa
-import sqlalchemy.event as event
-import sqlalchemy.orm as orm
 from flask_sqlalchemy.session import Session
+from sqlalchemy import event, orm
 from sqlalchemy.dialects.postgresql import ENUM as PGEnum
 
 from flask_postgresql_audit.typing import OMap
