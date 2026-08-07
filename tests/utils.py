@@ -52,25 +52,31 @@ def alembic_config(cmd: str, engine: Engine, alembic_cfg_path: Path, **kw):
 
 def revision(engine: Engine, alembic_cfg_path: Path, **kw):
     stdout = StringIO()
-    with alembic_config("revision", engine, alembic_cfg_path, **kw) as cfg:
-        with contextlib.redirect_stdout(stdout):
-            command.revision(cfg, **kw)
+    with (
+        alembic_config("revision", engine, alembic_cfg_path, **kw) as cfg,
+        contextlib.redirect_stdout(stdout),
+    ):
+        command.revision(cfg, **kw)
     return stdout.getvalue()
 
 
 def upgrade(engine: Engine, alembic_cfg_path: Path, **kw):
     stdout = StringIO()
-    with alembic_config("upgrade", engine, alembic_cfg_path, **kw) as cfg:
-        with contextlib.redirect_stdout(stdout):
-            command.upgrade(cfg, **kw)
+    with (
+        alembic_config("upgrade", engine, alembic_cfg_path, **kw) as cfg,
+        contextlib.redirect_stdout(stdout),
+    ):
+        command.upgrade(cfg, **kw)
     return stdout.getvalue()
 
 
 def downgrade(engine: Engine, alembic_cfg_path: Path, **kw):
     stdout = StringIO()
-    with alembic_config("downgrade", engine, alembic_cfg_path, **kw) as cfg:
-        with contextlib.redirect_stdout(stdout):
-            command.upgrade(cfg, **kw)
+    with (
+        alembic_config("downgrade", engine, alembic_cfg_path, **kw) as cfg,
+        contextlib.redirect_stdout(stdout),
+    ):
+        command.upgrade(cfg, **kw)
     return stdout.getvalue()
 
 

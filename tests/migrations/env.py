@@ -34,10 +34,9 @@ target_metadata = db.metadata
 def process_revision_directives(context, revision, directives: list[MigrationScript]):
     if getattr(config.cmd_opts, "autogenerate", False):
         script = directives[0]
-        if upgrade_ops := script.upgrade_ops:
-            if upgrade_ops.is_empty():
-                directives[:] = []
-                print("No changes in schema detected.")
+        if (upgrade_ops := script.upgrade_ops) and upgrade_ops.is_empty():
+            directives[:] = []
+            print("No changes in schema detected.")
 
 
 def run_migrations_online() -> None:

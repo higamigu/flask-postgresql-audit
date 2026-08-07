@@ -27,7 +27,7 @@ def test_jsonb_subtract(test_client, old, new, result):
     assert (
         db.session.scalar(
             text(JSONB_SUBTRACT.format(schema=audit.context["schema_prefix"])),
-            dict(old=json.dumps(old), new=json.dumps(new)),
+            {"old": json.dumps(old), "new": json.dumps(new)},
         )
         == result
     )
