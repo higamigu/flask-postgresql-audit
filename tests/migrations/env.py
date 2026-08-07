@@ -4,7 +4,10 @@ from alembic import context
 from alembic.operations.ops import MigrationScript
 from sqlalchemy import engine_from_config, pool
 
-from flask_postgresql_audit.alembic import chain_revision_directives, reorder_migration_ops
+from flask_postgresql_audit.alembic import (
+    chain_revision_directives,
+    reorder_migration_ops,
+)
 from tests.app import db
 
 # this is the Alembic Config object, which provides

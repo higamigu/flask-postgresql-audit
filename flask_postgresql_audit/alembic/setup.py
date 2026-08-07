@@ -89,9 +89,11 @@ def chain_revision_directives(*callbacks):
     Chain multiple process_revision_directives callbacks together into a single
     listener for Alembic's context.configure().
     """
+
     def wrapper(context, revision, directives: list[MigrationScript]):
         for cb in callbacks:
             cb(context, revision, directives)
+
     return wrapper
 
 
