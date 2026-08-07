@@ -25,7 +25,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "alembic>=1.17.0",
+    "alembic>=1.18.0",
     "alembic-utils>=0.8.8",
     "flask>=3.1.2",
     "flask-sqlalchemy>=3.1.1",
