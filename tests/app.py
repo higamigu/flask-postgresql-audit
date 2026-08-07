@@ -10,10 +10,10 @@ from flask_postgresql_audit import Audit, PostgreSQLAudit
 
 
 class DefaultConfig:
-    DB_USER = os.environ.get("POSTGRESQL_AUDIT_TEST_USER", "postgres")
-    DB_PASSWORD = os.environ.get("POSTGRESQL_AUDIT_TEST_PASSWORD", "postgres")
-    DB_NAME = os.environ.get("POSTGRESQL_AUDIT_TEST_DB", "pg_audit_test")
-    DB_PORT = os.environ.get("POSTGRESQL_AUDIT_TEST_PORT", "5492")
+    DB_USER = os.environ.get("POSTGRES_USER", "postgres")
+    DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "postgres")
+    DB_NAME = os.environ.get("POSTGRES_DB", "pg_audit_test")
+    DB_PORT = os.environ.get("POSTGRES_PORT", "5432")
 
     SQLALCHEMY_DATABASE_URI = (
         f"postgresql://{DB_USER}:{DB_PASSWORD}@localhost:{DB_PORT}/{DB_NAME}"
