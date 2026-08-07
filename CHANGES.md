@@ -3,6 +3,55 @@
 Here you can see the full list of changes between each Flask-PostgreSQL-Audit
 release.
 
+## 1.1.0 (2026-08-07)
+
+-   Bump `alembic` dependency to `>=1.18.0`.
+-   Refactor Alembic integration to use the official Plugin API and DispatchPriority system.
+-   Add multi-schema test matrix and schema-aware support to the test suite.
+-   Modernize Python type annotations, imports, string formatting, and clean up code using Ruff.
+-   Simplify context managers and type-hint fixtures in tests.
+
+## 1.0.9 (2026-08-07)
+
+-   Change `fetch_activity` join clause to `outerjoin`.
+-   Resolve type checking errors.
+
+## 1.0.8 (2026-03-30)
+
+-   Update `Audit` mixin class and refactor `fetch_activity` method, removing rowkey filter on class scope.
+-   Add PostgreSQL function `get_table_relid`.
+-   Fix `get_pk_values` returns wrong jsonb type if primary key columns are null.
+
+## 1.0.7 (2025-12-15)
+
+-   Fix cartesian join when providing a table model to `fetch_activity()`.
+
+## 1.0.6 (2025-12-15)
+
+-   Add `fetch_activity()` statement constructor with optional `verb` filtering, ordered by ID descending.
+-   Add `hybridmethod` descriptor.
+-   Add extension `document_staging`.
+
+## 1.0.5 (2025-11-27)
+
+-   Add `alembic_utils` extension `pg_aggregate`.
+
+## 1.0.4 (2025-11-17)
+
+-   Fix: use explicit schema prefix to call `get_pk_values()` in `create_activity`.
+
+## 1.0.3 (2025-11-14)
+
+-   Fix: use schema prefix when calling `jsonb_subtract()` in audit trigger functions.
+
+## 1.0.2 (2025-11-14)
+
+-   Support optional verbose value comparison in `jsonb_subtract()`.
+
+## 1.0.1 (2025-10-30)
+
+-   Update authors in `pyproject.toml` and update `README.md`.
+
 ## 1.0.0 (2025-10-30)
 
 -   Forked from PostgreSQL-Audit.
