@@ -15,6 +15,7 @@ jobs:
           POSTGRES_DB: postgresql_audit_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          POSTGRES_PORT: 5432
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -55,6 +56,4 @@ jobs:
           pip install --upgrade tox setuptools
 
       - name: Run tests
-        env:
-          POSTGRESQL_AUDIT_TEST_PASSWORD: postgres
         run: tox -e ${{ matrix.tox }}
