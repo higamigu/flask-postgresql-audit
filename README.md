@@ -25,7 +25,7 @@ uv add flask-postgresql-audit
 ```
 or install directly from this repo
 ```
-uv add git+https://github.com/higamigu/flask-postgresql-audit --tag v1.0.0
+uv add git+https://github.com/higamigu/flask-postgresql-audit --tag v1.1.0
 ```
 
 ## Usage
@@ -94,6 +94,26 @@ activity.object_id      # 1
 activity.old_data       # {'id': '1', 'name': 'Some other article'}
 activity.changed_data   # None
 ```
+
+## Querying Activity History
+
+Instead of querying `audit.Activity` manually, you can use `fetch_activity()` to retrieve the audit trail for a model class, a single model instance, or a sequence/list of model instances:
+
+``` python
+# Query activity for a specific model class (e.g. Article)
+stmt = audit.fetch_activity(Article)
+activities = db.session.execute(stmt).all()
+
+# Query activity for a specific article instance
+stmt = audit.fetch_activity(article)
+activities = db.session.execute(stmt).all()
+
+# Query activity for multiple instances
+stmt = audit.fetch_activity([article1, article2])
+activities = db.session.execute(stmt).all()
+```
+
+The returned statement is a SQLAlchemy `select` object that joins `Activity` and `Transaction` tables, ordered by activity ID descending. You can further customize or execute this statement.
 
 ## Different Schema
 You can isolate `pg_audit` objects entirely to a different schema by doing
