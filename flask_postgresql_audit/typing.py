@@ -6,4 +6,4 @@ T = TypeVar("T")
 OMap = Mapped[T | None]  # Optional Mapped / Nullable
 
 
-AnyAttrribute = InstrumentedAttribute[Any]
+AnyAttribute = InstrumentedAttribute[Any]

@@ -13,7 +13,7 @@ from sqlalchemy.util import OrderedSet
 
 from .alembic import register_triggers, setup_db
 from .models import activity_model_factory, transaction_model_factory
-from .typing import AnyAttrribute
+from .typing import AnyAttribute
 from .utils import load_template
 
 if t.TYPE_CHECKING:
@@ -76,7 +76,7 @@ def get_modified_columns(obj: orm.DeclarativeBase):
         if not attr.history.has_changes():
             continue
 
-        cls_attr: AnyAttrribute = getattr(obj.__class__, key)
+        cls_attr: AnyAttribute = getattr(obj.__class__, key)
         prop = cls_attr.property
         if isinstance(prop, orm.ColumnProperty):
             modified.update(prop.columns)
