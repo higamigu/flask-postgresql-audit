@@ -4,6 +4,7 @@ from alembic import context
 from alembic.operations.ops import MigrationScript
 from sqlalchemy import engine_from_config, pool
 
+from flask_postgresql_audit.alembic import chain_revision_directives, reorder_migration_ops
 from tests.app import db
 
 # this is the Alembic Config object, which provides
@@ -54,7 +55,10 @@ def run_migrations_online() -> None:
             connection=connection,
             target_metadata=target_metadata,
             include_schemas=True,
-            process_revision_directives=process_revision_directives,
+            process_revision_directives=chain_revision_directives(
+                reorder_migration_ops,
+                process_revision_directives,
+            ),
         )
 
         with context.begin_transaction():
