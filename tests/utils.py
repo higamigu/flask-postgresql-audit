@@ -76,6 +76,7 @@ def downgrade(engine: Engine, alembic_cfg_path: Path, **kw):
 
 def clear_migrations(engine: Engine, alembic_cfg_path: Path, **kw):
     with engine.begin() as connection:
+        connection.execute(text("DROP EXTENSION IF EXISTS btree_gist CASCADE;"))
         connection.execute(text("DROP SCHEMA IF EXISTS public CASCADE;"))
         connection.execute(text("DROP SCHEMA IF EXISTS audit CASCADE;"))
         connection.execute(text("CREATE SCHEMA public;"))

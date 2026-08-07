@@ -3,7 +3,9 @@ import json
 import pytest
 from sqlalchemy import text
 
-from .app import db
+from .app import audit, db
+
+JSONB_SUBTRACT = "SELECT {schema}jsonb_subtract((:new)::jsonb, (:old)::jsonb)"
 
 
 @pytest.mark.parametrize(
@@ -24,7 +26,7 @@ from .app import db
 def test_jsonb_subtract(test_client, old, new, result):
     assert (
         db.session.scalar(
-            text("SELECT jsonb_subtract((:new)::jsonb, (:old)::jsonb)"),
+            text(JSONB_SUBTRACT.format(schema=audit.context["schema_prefix"])),
             dict(old=json.dumps(old), new=json.dumps(new)),
         )
         == result

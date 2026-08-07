@@ -20,9 +20,11 @@ class DefaultConfig:
     )
     SQLALCHEMY_ECHO = False
 
+    PGA_SCHEMA_NAME = os.environ.get("SCHEMA_NAME", None)
+
 
 db = SQLAlchemy()
-audit = PostgreSQLAudit()
+audit = PostgreSQLAudit(schema_name=DefaultConfig.PGA_SCHEMA_NAME)
 
 
 class BaseModel(db.Model):
