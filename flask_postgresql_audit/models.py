@@ -28,7 +28,7 @@ def activity_model_factory(
 ):
     class PGAuditActivity(base_cls, activity_base):
         __tablename__ = "pga_activity"
-        __table_args__ = {"schema": schema_name}
+        __table_args__: t.ClassVar[dict[str, t.Any]] = {"schema": schema_name}
 
         transaction_id = mapped_column(sa.BigInteger, sa.ForeignKey(transaction_cls.id))
         transaction = relationship(transaction_cls, backref="activities")
@@ -44,7 +44,7 @@ def transaction_model_factory(
     **kwargs,
 ):
     if actor_cls:
-        actor_mapper: "Mapper[DeclarativeBase]" = sa.inspect(actor_cls)
+        actor_mapper: Mapper[DeclarativeBase] = sa.inspect(actor_cls)
         if len(actor_mapper.primary_key) != 1:
             raise PGAuditFactoryError(
                 "PGAudit does not support actor class"

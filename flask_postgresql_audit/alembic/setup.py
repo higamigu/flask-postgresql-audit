@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING, Optional, Set, Union
+from typing import TYPE_CHECKING
 
 from alembic.autogenerate import comparators
 from alembic.autogenerate.api import AutogenContext
@@ -32,7 +32,7 @@ def setup_db(audit: "PostgreSQLAudit"):
     def compare_audit_schema(
         autogen_context: AutogenContext,
         upgrade_ops: ops.UpgradeOps,
-        schemas: Union[Set[None], Set[Optional[str]]],
+        schemas: set[None] | set[str | None],
     ) -> None:
         if connection := autogen_context.connection:
             check_schema = """
@@ -123,7 +123,7 @@ def register_triggers(audit: "PostgreSQLAudit"):
 
 def get_blind_migration_op(entity: "ReplaceableEntity", connection: Connection):
     session = Session(bind=connection)
-    db_ents: list["ReplaceableEntity"] = entity.from_database(session, entity.schema)
+    db_ents: list[ReplaceableEntity] = entity.from_database(session, entity.schema)
 
     for db_ent in db_ents:
         if entity.identity == db_ent.identity:

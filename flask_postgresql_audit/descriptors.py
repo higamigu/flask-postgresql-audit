@@ -13,7 +13,7 @@ class hybridmethod(t.Generic[_P, _R]):
     def __init__(
         self,
         inst_func: t.Callable[t.Concatenate[t.Any, _P], _R],
-        cls_func: t.Optional[t.Callable[t.Concatenate[t.Any, _P], _R]] = None,
+        cls_func: t.Callable[t.Concatenate[t.Any, _P], _R] | None = None,
     ):
         self.inst_func = inst_func
         if cls_func is not None:
@@ -22,7 +22,7 @@ class hybridmethod(t.Generic[_P, _R]):
             self.classmethod(inst_func)
 
     def __get__(
-        self, instance: t.Optional[object], owner: t.Type[object]
+        self, instance: object | None, owner: type[object]
     ) -> t.Callable[t.Concatenate[t.Any, _P], _R]:
         if instance is None:
             return self.cls_func.__get__(owner, owner)

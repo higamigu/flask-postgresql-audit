@@ -27,8 +27,8 @@ class ActivityBase:
     changed_data: OMap[dict] = mapped_column(JSONB, default={}, server_default="{}")
 
     def __repr__(self):
-        return "<{cls} table_name={table_name!r} id={id!r}>".format(
-            cls=self.__class__.__name__, table_name=self.table_name, id=self.id
+        return (
+            f"<{self.__class__.__name__} table_name={self.table_name!r} id={self.id!r}>"
         )
 
 
@@ -47,6 +47,6 @@ class TransactionBase:
         return func.tsrange(cls.issued_at - interval, cls.issued_at)
 
     def __repr__(self):
-        return "<{cls} id={id!r} issued_at={issued_at!r}>".format(
-            cls=self.__class__.__name__, id=self.id, issued_at=self.issued_at
+        return (
+            f"<{self.__class__.__name__} id={self.id!r} issued_at={self.issued_at!r}>"
         )

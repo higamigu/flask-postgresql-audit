@@ -4,11 +4,10 @@ from contextlib import contextmanager
 from itertools import groupby
 
 import sqlalchemy as sa
-import sqlalchemy.event as event
-import sqlalchemy.orm as orm
 from alembic_utils.replaceable_entity import ReplaceableEntity
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import event, orm
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.util import OrderedSet
 
@@ -26,7 +25,7 @@ class ImproperlyConfigured(Exception):
 
 
 class Audit:
-    __audit_args__: dict = {}
+    __audit_args__: t.ClassVar[dict] = {}
     __audit_schema__: str = ""
 
     __audit_relid__: orm.Mapped[int]
@@ -72,7 +71,7 @@ def get_modified_columns(obj: orm.DeclarativeBase):
     modified: set[sa.ColumnElement[t.Any]] = set()
     mapper = sa.inspect(obj.__class__)
     for key, attr in sa.inspect(obj).attrs.items():
-        if key in mapper.synonyms.keys():
+        if key in mapper.synonyms:
             continue
         if not attr.history.has_changes():
             continue
@@ -148,10 +147,10 @@ class PostgreSQLAudit:
     def __init__(
         self,
         *,
-        actor_cls: t.Optional[str] = None,
+        actor_cls: str | None = None,
         actor_id_getter: t.Callable[[], t.Any] = _default_actor_id,
         client_address_getter: t.Callable[[], t.Any] = _default_client_addr,
-        schema_name: t.Optional[str] = None,
+        schema_name: str | None = None,
         **kw,
     ):
         self._actor_cls = actor_cls
@@ -164,7 +163,7 @@ class PostgreSQLAudit:
 
     @property
     def context(self):
-        ctx = dict(schema_name=self.schema_name or "public")
+        ctx = {"schema_name": self.schema_name or "public"}
         ctx["schema_prefix"] = f"{ctx['schema_name']}."
         ctx["revoke_cmd"] = f"REVOKE ALL ON {ctx['schema_prefix']}activity FROM public;"
         if "jsonb_subtract_verbose" in self.options:
@@ -262,7 +261,7 @@ class PostgreSQLAudit:
         self.pg_audit_enabled = True
         self.pg_audit_entities = OrderedSet()
 
-        self.Base: type["orm.DeclarativeBase"] = db.Model  # type: ignore
+        self.Base: type[orm.DeclarativeBase] = db.Model  # type: ignore
 
         self.Transaction = transaction_model_factory(
             self.Base,
@@ -309,7 +308,7 @@ class PostgreSQLAudit:
             stmt = stmt.filter(self.Activity.table_name == class_.__tablename__)
 
         else:
-            objects = list(obj) if isinstance(obj, t.Sequence) else list([obj])
+            objects = list(obj) if isinstance(obj, t.Sequence) else [obj]
             conditions = []
             for class_, objs in groupby(objects, key=lambda o: o.__class__):
                 conditions.append(
