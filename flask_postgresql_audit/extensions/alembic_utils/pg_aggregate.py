@@ -58,7 +58,7 @@ class PGAggregate(ReplaceableEntity):
         )
 
     @classmethod
-    def from_database(cls, sess: Session, schema: str="%") -> "list[PGAggregate]":
+    def from_database(cls, sess: Session, schema: str = "%") -> "list[PGAggregate]":
         PG_GTE_11 = """
             and p.prokind = 'a'
         """

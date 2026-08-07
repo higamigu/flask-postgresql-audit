@@ -59,7 +59,7 @@ def transaction_model_factory(
         @declared_attr
         def actor_id(cls) -> OMap[t.Any]:
             if actor_cls:
-                return mapped_column(actor_pk.type, ForeignKey(actor_pk)) # type: ignore
+                return mapped_column(actor_pk.type, ForeignKey(actor_pk))  # type: ignore
             return mapped_column(sa.Text)
 
         if actor_cls:

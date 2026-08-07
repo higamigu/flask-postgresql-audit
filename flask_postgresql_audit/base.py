@@ -3,8 +3,7 @@ from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import BigInteger, Text, func, text
 from sqlalchemy.dialects.postgresql import INET, JSONB
-from sqlalchemy.orm import Mapped, mapped_column, declared_attr
-
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 
 from .typing import OMap
 
