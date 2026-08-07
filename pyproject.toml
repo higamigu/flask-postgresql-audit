@@ -38,9 +38,9 @@ Homepage = "https://github.com/higamigu/flask-postgresql-audit"
 [dependency-groups]
 dev = [
     "pytest>=8.4.2",
-    "ruff>=0.14.1",
+    "ruff>=0.16.1",
     "setuptools>=80.9.0",
-    "tox>=4.31.0"
+    "tox>=4.31.0",
 ]
 
 [tool.hatch.version]
