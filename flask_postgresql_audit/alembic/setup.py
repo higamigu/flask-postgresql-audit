@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, Optional, Set, Union
 from alembic.autogenerate import comparators
 from alembic.autogenerate.api import AutogenContext
 from alembic.operations import ops
+from alembic.operations.ops import MigrationScript
+from alembic.util import DispatchPriority
 from alembic_utils.replaceable_entity import register_entities, registry
 from alembic_utils.reversible_op import CreateOp
 from sqlalchemy import Connection, text
@@ -26,38 +28,71 @@ def setup_db(audit: "PostgreSQLAudit"):
     register_triggers(audit)
     register_entities(audit.pg_audit_entities)
 
+    @comparators.dispatch_for("schema", priority=DispatchPriority.FIRST)
     def compare_audit_schema(
         autogen_context: AutogenContext,
         upgrade_ops: ops.UpgradeOps,
         schemas: Union[Set[None], Set[Optional[str]]],
     ) -> None:
-        idx = 0
         if connection := autogen_context.connection:
             check_schema = """
                 SELECT TRUE FROM information_schema.schemata
                 WHERE schema_name = '{name}'
             """.format(name=audit.context["schema_name"])
             if not connection.scalar(text(check_schema)):
-                upgrade_ops.ops.insert(idx, SchemaCreate(audit.context["schema_name"]))
-                idx += 1
+                upgrade_ops.ops.append(SchemaCreate(audit.context["schema_name"]))
 
             for ent in audit.pg_audit_entities:
                 if op := get_blind_migration_op(ent, connection):
-                    registry._entities.pop(ent.identity)
-                    if ent.signature == "btree_gist":
-                        upgrade_ops.ops.insert(idx, op)
-                    else:
-                        upgrade_ops.ops.append(op)
+                    registry._entities.pop(ent.identity, None)
+                    upgrade_ops.ops.append(op)
 
-    for idx, comp_fn in enumerate(comparators._registry.get(("schema", "default"), [])):
-        # Insert pg_audit comparators before alembic_utils comparators
-        # to override alembic_utils migration caveats when entity
-        # depend on new object in same migration
-        if comp_fn.__module__ == "alembic_utils.replaceable_entity":
-            comparators._registry.setdefault(("schema", "default"), []).insert(
-                idx, compare_audit_schema
-            )
-            break
+
+def reorder_migration_ops(context, revision, directives: list[MigrationScript]):
+    """
+    Alembic directive listener that reorders upgrade operations into correct
+    dependency order:
+    1. Schema creation & btree_gist extension
+    2. Tables, indexes, foreign keys, etc.
+    3. Triggers & Replaceable audit entities
+    """
+    for directive in directives:
+        if not hasattr(directive, "upgrade_ops") or directive.upgrade_ops is None:
+            continue
+
+        upgrade_ops = directive.upgrade_ops.ops
+
+        schema_ops = []
+        extension_ops = []
+        trigger_ops = []
+        other_ops = []
+
+        for op in upgrade_ops:
+            if isinstance(op, SchemaCreate):
+                schema_ops.append(op)
+            elif (
+                isinstance(op, CreateOp)
+                and getattr(op.target, "signature", None) == "btree_gist"
+            ):
+                extension_ops.append(op)
+            elif isinstance(op, CreateOp):
+                trigger_ops.append(op)
+            else:
+                other_ops.append(op)
+
+        # Reassemble the ops sequence in strict dependency order
+        directive.upgrade_ops.ops = schema_ops + extension_ops + other_ops + trigger_ops
+
+
+def chain_revision_directives(*callbacks):
+    """
+    Chain multiple process_revision_directives callbacks together into a single
+    listener for Alembic's context.configure().
+    """
+    def wrapper(context, revision, directives: list[MigrationScript]):
+        for cb in callbacks:
+            cb(context, revision, directives)
+    return wrapper
 
 
 def register_core_entities(audit: "PostgreSQLAudit"):
