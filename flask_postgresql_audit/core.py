@@ -300,7 +300,7 @@ class PostgreSQLAudit:
                 self.Activity.changed_data,
             )
             .select_from(self.Activity)
-            .join(self.Transaction)
+            .outerjoin(self.Transaction)
             .order_by(self.Activity.id.desc())
         )
 
