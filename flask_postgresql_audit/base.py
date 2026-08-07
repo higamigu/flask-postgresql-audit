@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import BigInteger, Text, func, text
 from sqlalchemy.dialects.postgresql import INET, JSONB
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, declared_attr
+
 
 from .typing import OMap
 
@@ -34,7 +35,7 @@ class ActivityBase:
 
 class TransactionBase:
     if TYPE_CHECKING:
-        actor_id: OMap[Any]
+        actor_id: declared_attr[Any]
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     native_transaction_id: OMap[int] = mapped_column(BigInteger)

@@ -49,7 +49,7 @@ class PGAggregate(ReplaceableEntity):
         )
 
     def to_sql_statement_create_or_replace(self):
-        return self.to_sql_statement_create(replace=True)
+        yield self.to_sql_statement_create(replace=True)
 
     def to_sql_statement_drop(self, cascade=False):
         return sa.text(
@@ -58,7 +58,7 @@ class PGAggregate(ReplaceableEntity):
         )
 
     @classmethod
-    def from_database(cls, sess: Session, schema: str) -> "list[PGAggregate]":
+    def from_database(cls, sess: Session, schema: str="%") -> "list[PGAggregate]":
         PG_GTE_11 = """
             and p.prokind = 'a'
         """
