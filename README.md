@@ -181,6 +181,67 @@ handlers =
 qualname = pg_audit
 ```
 
+## Troubleshooting
+
+### Activity not being recorded?
+
+1. **Check triggers are installed**: Run `flask db upgrade` after installing the extension
+2. **Verify audit is initialized**: Ensure you called `audit.init_app(app, db)` before using models
+3. **Commit after changes**: Audit records are only created on `db.session.commit()`
+
+### Actor tracking not working?
+
+The default actor ID getter tries to import `flask_login.current_user`. If you're not using Flask-Login:
+
+1. Provide your own `actor_id_getter` function:
+   ```python
+   def my_actor_id():
+       return current_user.id if current_user.is_authenticated else None
+   ```
+
+2. Pass it to the extension: `audit = PostgreSQLAudit(actor_id_getter=my_actor_id)`
+
+### Using a custom schema?
+
+1. Set schema when creating audit: `audit = PostgreSQLAudit(schema_name="my_schema")`
+2. Configure Alembic to track multiple schemas (see "Different Schema" section)
+3. Add `"include_schemas=True"` to `alembic/env.py` in `run_migrations_online()`
+
+### Fetching activity for custom models?
+
+The `fetch_activity()` method works with:
+- A model class: `audit.fetch_activity(MyModel)`
+- A single instance: `audit.fetch_activity(my_instance)`
+- Multiple instances: `audit.fetch_activity([instance1, instance2])`
+
+## Extensions
+
+### Document Staging
+
+The `document_staging` extension adds workflow capabilities to your models:
+
+```python
+from flask_postgresql_audit.extensions.document_staging import (
+    attach_listener,
+    DocumentStaging,
+)
+
+class Article(DocumentStaging):
+    __tablename__ = 'article'
+    docstatus = Column('docstatus', Enum(Draft, Submitted, Cancelled))
+
+# Attach the listener to your audit instance
+audit.extensions['document_staging'] = attach_listener()
+```
+
+See `DocumentStaging` model for available status values (`DRAFT`, `SUBMITTED`, `CANCELLED`).
+
+### pg_aggregate (alembic_utils)
+
+The `pg_aggregate` extension enables custom PostgreSQL aggregate functions to be managed by Alembic migrations. It's automatically registered when using the Alembic Plugin API.
+
+See `flask_postgresql_audit/extensions/alembic_utils/pg_aggregate.py` for implementation details.
+
 ## Running the tests
 
     git clone https://github.com/higamigu/flask-postgresql-audit.git
