@@ -5,7 +5,7 @@ from .app import User, audit, db
 
 
 @pytest.mark.usefixtures("test_client")
-class TestCustomSchemaactivityCreation:
+class TestCustomSchemaActivityCreation:
     def test_insert(self, user):
         stmt = sa.select(audit.Activity).limit(1)
         if activity := db.session.scalar(stmt):

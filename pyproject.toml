@@ -1,7 +1,7 @@
 
 
 [project]
-name = "flask-postgresql_audit"
+name = "flask-postgresql-audit"
 dynamic = ["version"]
 description = "Versioning and auditing extension for PostgreSQL and SQLAlchemy."
 readme = "README.md"
