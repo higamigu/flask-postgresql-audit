@@ -218,6 +218,29 @@ The `fetch_activity()` method works with:
 - A single instance: `audit.fetch_activity(my_instance)`
 - Multiple instances: `audit.fetch_activity([instance1, instance2])`
 
+### Migration dependency or trigger ordering issues?
+
+If Alembic migration generation creates triggers before tables or schema dependencies:
+
+Use `reorder_migration_ops` and `chain_revision_directives` in `alembic/env.py`:
+
+```python
+from flask_postgresql_audit.alembic import (
+    chain_revision_directives,
+    reorder_migration_ops,
+)
+
+context.configure(
+    connection=connection,
+    target_metadata=target_metadata,
+    include_schemas=True,
+    process_revision_directives=chain_revision_directives(
+        reorder_migration_ops,
+        process_revision_directives,
+    ),
+)
+```
+
 ## Extensions
 
 ### Document Staging
