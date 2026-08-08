@@ -218,29 +218,48 @@ The `fetch_activity()` method works with:
 
 ### Document Staging
 
-The `document_staging` extension adds workflow capabilities to your models:
+The `document_staging` extension provides document lifecycle management and version revision tracking for models.
 
 ```python
 from flask_postgresql_audit.extensions.document_staging import (
-    attach_listener,
     DocumentStaging,
+    Docstatus,
+    attach_listener,
 )
 
-class Article(DocumentStaging):
-    __tablename__ = 'article'
-    docstatus = Column('docstatus', Enum(Draft, Submitted, Cancelled))
+class Article(BaseModel, DocumentStaging):
+    __tablename__ = "article"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str]
 
-# Attach the listener to your audit instance
-audit.extensions['document_staging'] = attach_listener()
+# Attach session listener for automatic actor and timestamp tracking
+attach_listener()
 ```
 
-See `DocumentStaging` model for available status values (`DRAFT`, `SUBMITTED`, `CANCELLED`).
+#### Lifecycle & Transitions
 
-### pg_aggregate (alembic_utils)
+- **`Docstatus` states**: `DRAFT` (0), `SUBMITTED` (1), `CANCELLED` (2), `REVISED` (3).
+- **`doc.bump()`**: Advances document status (`DRAFT` -> `SUBMITTED` -> `CANCELLED`).
+- **`doc.revise(new_doc)`**: Creates a new revision `new_doc` from a `CANCELLED` document and sets state to `REVISED`.
+- **`doc.delete(session)`**: Deletes a `DRAFT` document. If it was a revision, reverts parent document status back to `CANCELLED`.
+- **Automatic Fields**: `created_by`, `created_on`, `submitted_by`, `submitted_on`, `cancelled_by`, `cancelled_on` are automatically set during session flush events.
 
-The `pg_aggregate` extension enables custom PostgreSQL aggregate functions to be managed by Alembic migrations. It's automatically registered when using the Alembic Plugin API.
+### Custom PostgreSQL Aggregates (`alembic_utils`)
 
-See `flask_postgresql_audit/extensions/alembic_utils/pg_aggregate.py` for implementation details.
+`PGAggregate` extends `alembic_utils` to manage custom PostgreSQL aggregate functions in Alembic migrations.
+
+```python
+from flask_postgresql_audit.extensions.alembic_utils import PGAggregate
+
+# Example: Define custom aggregate function entity
+sum_agg = PGAggregate(
+    schema="public",
+    signature="custom_sum(numeric)",
+    definition="(SFUNC = numeric_add, STYPE = numeric, INITCOND = '0')",
+)
+```
+
+Automatically detects and tracks custom `CREATE AGGREGATE` definitions during `alembic revision --autogenerate`.
 
 ## Running the tests
 
