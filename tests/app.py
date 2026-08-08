@@ -7,6 +7,12 @@ from sqlalchemy import Table
 from sqlalchemy.orm import Mapped, mapped_column
 
 from flask_postgresql_audit import Audit, PostgreSQLAudit
+from flask_postgresql_audit.extensions.document_staging import (
+    DocumentStaging,
+    attach_listener,
+)
+
+attach_listener(actor_id_getter=lambda: "test_actor")
 
 
 class DefaultConfig:
@@ -50,6 +56,12 @@ class Article(BaseModel, Audit):
     __tablename__ = "article"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
+
+
+class Document(BaseModel, DocumentStaging, Audit):
+    __tablename__ = "document"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str]
 
 
 app = Flask(__name__)
