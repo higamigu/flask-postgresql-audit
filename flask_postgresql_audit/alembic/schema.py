@@ -33,15 +33,15 @@ class SchemaDrop(SchemaOperation):
 @Operations.implementation_for(SchemaCreate)
 def create_schema(operations: Operations, operation: SchemaCreate):
     stmt = f"""
-        CREATE SCHEMA {operation.schema_name};
-        REVOKE ALL ON SCHEMA {operation.schema_name} FROM public;
+        CREATE SCHEMA "{operation.schema_name}";
+        REVOKE ALL ON SCHEMA "{operation.schema_name}" FROM public;
     """
     operations.execute(text(stmt))
 
 
 @Operations.implementation_for(SchemaDrop)
 def drop_schema(operations: Operations, operation: SchemaDrop):
-    stmt = f"DROP SCHEMA {operation.schema_name} CASCADE;"
+    stmt = f'DROP SCHEMA "{operation.schema_name}" CASCADE;'
     operations.execute(text(stmt))
 
 
