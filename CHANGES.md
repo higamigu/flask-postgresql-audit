@@ -3,6 +3,14 @@
 Here you can see the full list of changes between each Flask-PostgreSQL-Audit
 release.
 
+## 1.1.1 (2026-08-08)
+
+-   Fix test teardown downgrade error in migration listener.
+-   Fix `pg_audit_enabled` state thread-safety using `ContextVar`.
+-   Quote schema names and parameterize schema existence queries in Alembic operations.
+-   Remove unused templates and unused `hybridmethod` descriptor.
+-   Document `DocumentStaging` and `PGAggregate` extensions in `README.md`.
+
 ## 1.1.0 (2026-08-07)
 
 -   Bump `alembic` dependency to `>=1.18.0`.
