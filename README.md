@@ -39,16 +39,18 @@ from my_app import app  # your flask app
 db = SQLAlchemy()
 audit = PostgreSQLAudit()
 
+
 class Article(db.Model, Audit):
-    __tablename__ = 'article'
+    __tablename__ = "article"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
 
+
 db.init_app(app)
 audit.init_app(app, db)
 
-article = Article(name='Some article')
+article = Article(name="Some article")
 db.session.add(article)
 db.session.commit()
 ```
@@ -62,24 +64,24 @@ Now we can check the newly created activity.
 
 ``` python
 activity = db.session.scalar(select(audit.Activity))
-activity.id             # 1
-activity.table_name     # 'article'
-activity.verb           # 'insert'
-activity.old_data       # None
-activity.changed_data   # {'id': '1', 'name': 'Some article'}
+activity.id  # 1
+activity.table_name  # 'article'
+activity.verb  # 'insert'
+activity.old_data  # None
+activity.changed_data  # {'id': '1', 'name': 'Some article'}
 ```
 
 ``` python
-article.name = 'Some other article'
+article.name = "Some other article"
 db.session.commit()
 
 activity = db.session.scalar(select(audit.Activity).order_by(desc("id")))
-activity.id             # 2
-activity.table_name     # 'article'
-activity.verb           # 'update'
-activity.object_id      # 1
-activity.old_data       # {'id': '1', 'name': 'Some article'}
-activity.changed_data   # {'name': 'Some other article'}
+activity.id  # 2
+activity.table_name  # 'article'
+activity.verb  # 'update'
+activity.object_id  # 1
+activity.old_data  # {'id': '1', 'name': 'Some article'}
+activity.changed_data  # {'name': 'Some other article'}
 ```
 
 ``` python
@@ -87,12 +89,12 @@ db.session.delete(article)
 db.session.commit()
 
 activity = db.session.scalar(select(audit.Activity).order_by(desc("id")))
-activity.id             # 3
-activity.table_name     # 'article'
-activity.verb           # 'delete'
-activity.object_id      # 1
-activity.old_data       # {'id': '1', 'name': 'Some other article'}
-activity.changed_data   # None
+activity.id  # 3
+activity.table_name  # 'article'
+activity.verb  # 'delete'
+activity.object_id  # 1
+activity.old_data  # {'id': '1', 'name': 'Some other article'}
+activity.changed_data  # None
 ```
 
 ## Querying Activity History
@@ -152,12 +154,14 @@ You can customize actor id getter function by doing the following. Here is an ex
 ``` python
 from flask_jwt_extended import jwt_required, current_user
 
+
 @jwt_required(optional=True)
 def actor_id_getter():
     try:
         return current_user.email or None
     except Exception:
         return None
+
 
 ...
 
@@ -227,10 +231,12 @@ from flask_postgresql_audit.extensions.document_staging import (
     attach_listener,
 )
 
+
 class Article(BaseModel, DocumentStaging):
     __tablename__ = "article"
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str]
+
 
 # Attach session listener for automatic actor and timestamp tracking
 attach_listener()

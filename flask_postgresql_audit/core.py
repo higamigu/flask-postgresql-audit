@@ -19,6 +19,9 @@ from .utils import load_template
 
 _pg_audit_enabled: ContextVar[bool] = ContextVar("pg_audit_enabled", default=True)
 
+if t.TYPE_CHECKING:
+    from sqlalchemy.sql.functions import _FunctionGenerator
+
 
 class ImproperlyConfigured(Exception):
     pass
