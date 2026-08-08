@@ -1,6 +1,7 @@
 import inspect
 import typing as t
 from contextlib import contextmanager
+from contextvars import ContextVar
 from itertools import groupby
 
 import sqlalchemy as sa
@@ -16,8 +17,7 @@ from .models import activity_model_factory, transaction_model_factory
 from .typing import AnyAttribute
 from .utils import load_template
 
-if t.TYPE_CHECKING:
-    from sqlalchemy.sql.functions import _FunctionGenerator
+_pg_audit_enabled: ContextVar[bool] = ContextVar("pg_audit_enabled", default=True)
 
 
 class ImproperlyConfigured(Exception):
@@ -139,10 +139,17 @@ def _default_client_addr() -> str | None:
 
 class PostgreSQLAudit:
     pg_audit_classes: set[type[Audit]]
-    pg_audit_enabled: bool
     pg_audit_entities: OrderedSet[ReplaceableEntity]
 
     options: dict[str, t.Any]
+
+    @property
+    def pg_audit_enabled(self) -> bool:
+        return _pg_audit_enabled.get()
+
+    @pg_audit_enabled.setter
+    def pg_audit_enabled(self, value: bool) -> None:
+        _pg_audit_enabled.set(value)
 
     def __init__(
         self,

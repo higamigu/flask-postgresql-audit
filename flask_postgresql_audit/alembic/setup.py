@@ -12,7 +12,7 @@ from sqlalchemy import Connection, text
 from sqlalchemy.orm import Session
 
 from . import entities
-from .schema import SchemaCreate
+from .schema import SchemaCreate, SchemaDrop
 
 if TYPE_CHECKING:
     from alembic_utils.replaceable_entity import ReplaceableEntity
@@ -37,9 +37,11 @@ def setup_db(audit: "PostgreSQLAudit"):
         if connection := autogen_context.connection:
             check_schema = """
                 SELECT TRUE FROM information_schema.schemata
-                WHERE schema_name = '{name}'
-            """.format(name=audit.context["schema_name"])
-            if not connection.scalar(text(check_schema)):
+                WHERE schema_name = :name
+            """
+            if not connection.scalar(
+                text(check_schema), {"name": audit.context["schema_name"]}
+            ):
                 upgrade_ops.ops.append(SchemaCreate(audit.context["schema_name"]))
 
             for ent in audit.pg_audit_entities:
@@ -82,6 +84,29 @@ def reorder_migration_ops(context, revision, directives: list[MigrationScript]):
 
         # Reassemble the ops sequence in strict dependency order
         directive.upgrade_ops.ops = schema_ops + extension_ops + other_ops + trigger_ops
+
+        if hasattr(directive, "downgrade_ops") and directive.downgrade_ops is not None:
+            downgrade_ops = directive.downgrade_ops.ops
+            d_schema_ops = []
+            d_extension_ops = []
+            d_trigger_ops = []
+            d_other_ops = []
+            for op in downgrade_ops:
+                target = getattr(op, "target", None)
+                if isinstance(op, SchemaDrop):
+                    d_schema_ops.append(op)
+                elif (
+                    target is not None
+                    and getattr(target, "signature", None) == "btree_gist"
+                ):
+                    d_extension_ops.append(op)
+                elif target is not None:
+                    d_trigger_ops.append(op)
+                else:
+                    d_other_ops.append(op)
+            directive.downgrade_ops.ops = (
+                d_trigger_ops + d_other_ops + d_extension_ops + d_schema_ops
+            )
 
 
 def chain_revision_directives(*callbacks):

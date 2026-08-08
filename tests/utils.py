@@ -76,7 +76,7 @@ def downgrade(engine: Engine, alembic_cfg_path: Path, **kw):
         alembic_config("downgrade", engine, alembic_cfg_path, **kw) as cfg,
         contextlib.redirect_stdout(stdout),
     ):
-        command.upgrade(cfg, **kw)
+        command.downgrade(cfg, **kw)
     return stdout.getvalue()
 
 
