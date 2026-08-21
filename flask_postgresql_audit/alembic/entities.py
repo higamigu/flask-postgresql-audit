@@ -81,3 +81,12 @@ def jsonb_subtract_factory(**context):
         signature="jsonb_subtract(arg1 jsonb, arg2 jsonb)",
         definition=sql["definition"],
     )
+
+
+def jsonb_array_subtract_factory(**context):
+    sql = parse_template("jsonb_array_subtract.sql", **context)
+    return PGFunction(
+        schema=context["schema_name"],
+        signature="jsonb_array_subtract(arg1 jsonb, arg2 jsonb)",
+        definition=sql["definition"],
+    )
