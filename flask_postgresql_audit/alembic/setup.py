@@ -129,6 +129,7 @@ def register_core_entities(audit: "PostgreSQLAudit"):
     audit.pg_audit_entities.add(entities.get_setting_factory(**audit.context))
     audit.pg_audit_entities.add(entities.jsonb_subtract_factory(**audit.context))
     audit.pg_audit_entities.add(entities.jsonb_array_subtract_factory(**audit.context))
+    audit.pg_audit_entities.add(entities.jsonb_diff_factory(**audit.context))
     audit.pg_audit_entities.add(entities.create_activity_factory(**audit.context))
 
 

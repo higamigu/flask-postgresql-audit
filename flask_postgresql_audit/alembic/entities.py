@@ -90,3 +90,13 @@ def jsonb_array_subtract_factory(**context):
         signature="jsonb_array_subtract(arg1 jsonb, arg2 jsonb)",
         definition=sql["definition"],
     )
+
+
+def jsonb_diff_factory(**context):
+    context.setdefault("jsonb_subtract_join_type", "LEFT")
+    sql = parse_template("jsonb_diff.sql", **context)
+    return PGFunction(
+        schema=context["schema_name"],
+        signature="jsonb_diff(arg1 jsonb, arg2 jsonb)",
+        definition=sql["definition"],
+    )

@@ -63,3 +63,51 @@ def test_jsonb_array_subtract(test_client, arg1, arg2, result):
         )
         == result
     )
+
+
+JSONB_DIFF = "SELECT {schema}jsonb_diff((:new)::jsonb, (:old)::jsonb)"
+
+
+@pytest.mark.parametrize(
+    ("old", "new", "result"),
+    (
+        ({}, {}, {}),
+        ({"age": 13}, {"age": 14}, {"age": 14}),
+        ({"name": "Someone"}, {"name": "Someone"}, {}),
+        (
+            {"a": {"b": 1, "c": 2}},
+            {"a": {"b": 1, "c": 3}},
+            {"a": {"c": 3}},
+        ),
+        ([2], [1, 2, 3], [1, 3]),
+        ([1, 2, 3], [1, 2, 3], []),
+        (
+            {"tags": [2], "name": "a"},
+            {"tags": [1, 2, 3], "name": "a"},
+            {"tags": [1, 3]},
+        ),
+        (
+            {"tags": [1, 2], "name": "a"},
+            {"tags": [1, 2], "name": "a"},
+            {},
+        ),
+        (
+            {"data": {"items": ["b"], "meta": {"v": 1}}},
+            {"data": {"items": ["a", "b", "c"], "meta": {"v": 2}}},
+            {"data": {"items": ["a", "c"], "meta": {"v": 2}}},
+        ),
+        (
+            [{"id": 1}],
+            [{"id": 1}, {"id": 2}],
+            [{"id": 2}],
+        ),
+    ),
+)
+def test_jsonb_diff(test_client, old, new, result):
+    assert (
+        db.session.scalar(
+            text(JSONB_DIFF.format(schema=audit.context["schema_prefix"])),
+            {"old": json.dumps(old), "new": json.dumps(new)},
+        )
+        == result
+    )
