@@ -3,6 +3,10 @@
 Here you can see the full list of changes between each Flask-PostgreSQL-Audit
 release.
 
+## 1.1.3 (2026-08-21)
+
+-   Add `jsonb_diff()` function to recursively compute differences across JSONB objects and arrays.
+
 ## 1.1.2 (2026-08-21)
 
 -   Add dedicated `jsonb_array_subtract()` function to support set difference operations on JSONB arrays.
