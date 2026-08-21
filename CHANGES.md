@@ -3,6 +3,12 @@
 Here you can see the full list of changes between each Flask-PostgreSQL-Audit
 release.
 
+## 1.1.2 (2026-08-21)
+
+-   Add dedicated `jsonb_array_subtract()` function to support set difference operations on JSONB arrays.
+-   Add unit tests for `DocumentStaging` and `PGAggregate` extensions.
+-   Add `reorder_migration_ops` troubleshooting guide to `README.md`.
+
 ## 1.1.1 (2026-08-08)
 
 -   Fix test teardown downgrade error in migration listener.
