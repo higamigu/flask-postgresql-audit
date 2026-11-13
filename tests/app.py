@@ -20,10 +20,9 @@ class DefaultConfig:
     DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "postgres")
     DB_NAME = os.environ.get("POSTGRES_DB", "pg_audit_test")
     DB_PORT = os.environ.get("POSTGRES_PORT", "5432")
+    DB_DRIVER = os.environ.get("POSTGRES_DRIVER", "psycopg")
 
-    SQLALCHEMY_DATABASE_URI = (
-        f"postgresql://{DB_USER}:{DB_PASSWORD}@localhost:{DB_PORT}/{DB_NAME}"
-    )
+    SQLALCHEMY_DATABASE_URI = f"postgresql+{DB_DRIVER}://{DB_USER}:{DB_PASSWORD}@localhost:{DB_PORT}/{DB_NAME}"
     SQLALCHEMY_ECHO = False
 
     PGA_SCHEMA_NAME = os.environ.get("SCHEMA_NAME", None)

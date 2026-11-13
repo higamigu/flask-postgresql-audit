@@ -28,6 +28,30 @@ or install directly from this repo
 uv add git+https://github.com/higamigu/flask-postgresql-audit --tag v1.1.0
 ```
 
+The package installs [psycopg 3](https://www.psycopg.org/psycopg3/) as its default
+PostgreSQL driver. If your application uses the legacy `psycopg2` driver,
+install it with the optional extra:
+
+```
+pip install "flask-postgresql-audit[psycopg2]"
+```
+
+## Database Drivers
+
+Both psycopg 3 and psycopg2 are supported. Select the driver in your
+SQLAlchemy database URL:
+
+``` python
+# psycopg 3 (default)
+SQLALCHEMY_DATABASE_URI = "postgresql+psycopg://user:password@localhost/database"
+
+# psycopg2
+SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://user:password@localhost/database"
+```
+
+The extension requires Python 3.11 or newer and is tested on Python 3.11 through
+3.15.
+
 ## Usage
 
 ``` python
@@ -297,3 +321,7 @@ Automatically detects and tracks custom `CREATE AGGREGATE` definitions during `a
     pip install tox
     createdb postgresql_audit_test
     tox
+
+By default the test suite runs against psycopg 3. To run it against psycopg2:
+
+    POSTGRES_DRIVER=psycopg2 tox -e py315-schemaDefault-psycopg2

@@ -28,25 +28,45 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: "Python 3.13"
-            python: "3.13"
-            postgresql-version: 16
-            tox: py13
+          - name: "Python 3.15 / psycopg3 / PostgreSQL 18"
+            python: "3.15"
+            postgresql-version: 18
+            tox: py315-schemaDefault-psycopg
 
-          - name: "Python 3.12"
+          - name: "Python 3.15 / psycopg2 / PostgreSQL 18"
+            python: "3.15"
+            postgresql-version: 18
+            tox: py315-schemaDefault-psycopg2
+
+          - name: "Python 3.14 / psycopg3 / PostgreSQL 18"
+            python: "3.14"
+            postgresql-version: 18
+            tox: py314-schemaDefault-psycopg
+
+          - name: "Python 3.13 / psycopg3 / PostgreSQL 17"
+            python: "3.13"
+            postgresql-version: 17
+            tox: py313-schemaDefault-psycopg
+
+          - name: "Python 3.12 / psycopg3 / PostgreSQL 16"
             python: "3.12"
             postgresql-version: 16
-            tox: py12
+            tox: py312-schemaDefault-psycopg
 
-          - name: "Python 3.11"
+          - name: "Python 3.11 / psycopg3 / PostgreSQL 15"
             python: "3.11"
             postgresql-version: 15
-            tox: py11
+            tox: py311-schemaDefault-psycopg
+
+          - name: "Python 3.11 / psycopg2 / PostgreSQL 15"
+            python: "3.11"
+            postgresql-version: 15
+            tox: py311-schemaDefault-psycopg2
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
 

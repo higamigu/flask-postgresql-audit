@@ -21,6 +21,8 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
@@ -29,6 +31,11 @@ dependencies = [
     "alembic-utils>=0.8.8",
     "flask>=3.1.2",
     "flask-sqlalchemy>=3.1.1",
+    "psycopg[binary]>=3.2",
+]
+
+[project.optional-dependencies]
+psycopg2 = [
     "psycopg2>=2.9.11",
 ]
 
@@ -37,6 +44,7 @@ Homepage = "https://github.com/higamigu/flask-postgresql-audit"
 
 [dependency-groups]
 dev = [
+    "psycopg2-binary>=2.9.11",
     "pytest>=8.4.2",
     "ruff>=0.16.1",
     "setuptools>=80.9.0",

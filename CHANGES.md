@@ -3,6 +3,13 @@
 Here you can see the full list of changes between each Flask-PostgreSQL-Audit
 release.
 
+## Unreleased
+
+-   Add support for psycopg 3 and make it the default PostgreSQL driver.
+-   Keep psycopg2 support available through the `psycopg2` optional dependency extra.
+-   Add support for Python 3.14 and 3.15.
+-   Run the test suite against both psycopg 3 and psycopg2.
+
 ## 1.1.3 (2026-08-21)
 
 -   Add `jsonb_diff()` function to recursively compute differences across JSONB objects and arrays.
