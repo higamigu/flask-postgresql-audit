@@ -319,24 +319,26 @@ Automatically detects and tracks custom `CREATE AGGREGATE` definitions during `a
     git clone https://github.com/higamigu/flask-postgresql-audit.git
     cd flask-postgresql-audit
     pip install tox
-    createdb postgresql_audit_test
-    tox
+    python scripts/run_tox_matrix.py
 
-By default the test suite runs against psycopg 3. To run it against psycopg2:
+The script provisions PostgreSQL 15 through 18 containers, distributes the tox
+environments across 4 parallel workers by default, and prints a pass/skip/fail
+summary. Each worker gets its own database and Alembic migration directory, so
+parallel runs cannot reset each other's schemas. Worker count is capped at the
+number of PostgreSQL containers in the matrix (currently 4). Use `--workers N`
+to change concurrency, `--verbose` to stream test output, `--fail-fast` to stop
+at the first failure (sequential), `--no-postgres` to use an existing database
+(sequential), or `--keep-postgres` to leave the containers running for
+debugging. Install missing interpreters with `mise install python@3.13` or
+`uv python install 3.13` to include them.
 
-    POSTGRES_DRIVER=psycopg2 tox -e py315-schemaDefault-psycopg2
+To run a single environment, provide a matching PostgreSQL server yourself:
 
-To run every tox environment in one command:
+    tox -e py315-pg18-schemaDefault-psycopg
 
-    uv run python scripts/run_tox_matrix.py
+The default driver is psycopg 3. For psycopg2, select the matching environment:
 
-The script starts a temporary PostgreSQL container, runs each environment
-sequentially, skips Python versions that are not installed, and prints a
-pass/skip/fail summary. Install missing interpreters with
-`mise install python@3.13` or `uv python install 3.13` to include them. Use
-`--verbose` to stream test output, `--fail-fast` to stop at the first failure,
-`--no-postgres` to use an existing database, or `--keep-postgres` to leave the
-container running for debugging.
+    tox -e py315-pg18-schemaDefault-psycopg2
 
 ## Pre-commit hooks
 

@@ -1,10 +1,15 @@
+import os
+from pathlib import Path
+
 import pytest
 
 from tests.utils import REPO_ROOT, alembic_migration, test_session
 
 from .app import Article, User, app, db
 
-ALEMBIC_CONFIG = REPO_ROOT / "tests/migrations"
+ALEMBIC_CONFIG = Path(
+    os.environ.get("ALEMBIC_CONFIG", str(REPO_ROOT / "tests/migrations"))
+)
 
 
 @pytest.fixture(scope="session")

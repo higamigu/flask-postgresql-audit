@@ -31,37 +31,37 @@ jobs:
           - name: "Python 3.15 / psycopg3 / PostgreSQL 18"
             python: "3.15"
             postgresql-version: 18
-            tox: py315-schemaDefault-psycopg
+            tox: py315-pg18-schemaDefault-psycopg
 
           - name: "Python 3.15 / psycopg2 / PostgreSQL 18"
             python: "3.15"
             postgresql-version: 18
-            tox: py315-schemaDefault-psycopg2
+            tox: py315-pg18-schemaDefault-psycopg2
 
           - name: "Python 3.14 / psycopg3 / PostgreSQL 18"
             python: "3.14"
             postgresql-version: 18
-            tox: py314-schemaDefault-psycopg
+            tox: py314-pg18-schemaDefault-psycopg
 
           - name: "Python 3.13 / psycopg3 / PostgreSQL 17"
             python: "3.13"
             postgresql-version: 17
-            tox: py313-schemaDefault-psycopg
+            tox: py313-pg17-schemaDefault-psycopg
 
           - name: "Python 3.12 / psycopg3 / PostgreSQL 16"
             python: "3.12"
             postgresql-version: 16
-            tox: py312-schemaDefault-psycopg
+            tox: py312-pg16-schemaDefault-psycopg
 
           - name: "Python 3.11 / psycopg3 / PostgreSQL 15"
             python: "3.11"
             postgresql-version: 15
-            tox: py311-schemaDefault-psycopg
+            tox: py311-pg15-schemaDefault-psycopg
 
           - name: "Python 3.11 / psycopg2 / PostgreSQL 15"
             python: "3.11"
             postgresql-version: 15
-            tox: py311-schemaDefault-psycopg2
+            tox: py311-pg15-schemaDefault-psycopg2
 
     steps:
       - uses: actions/checkout@v7

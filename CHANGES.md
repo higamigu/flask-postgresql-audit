@@ -10,7 +10,9 @@ release.
 -   Add support for Python 3.14 and 3.15.
 -   Run the test suite against both psycopg 3 and psycopg2.
 -   Add pre-commit hooks for Ruff and the ty type checker.
--   Add `scripts/run_tox_matrix.py` to run the full tox matrix with one command, including a temporary PostgreSQL container.
+-   Add PostgreSQL 15 through 18 as a tox matrix dimension.
+-   Run the tox matrix in parallel with isolated per-worker databases and migrations, capped by the number of PostgreSQL containers.
+-   Add `scripts/run_tox_matrix.py` to run the full tox matrix with one command, including temporary PostgreSQL containers.
 
 ## 1.1.3 (2026-08-21)
 
