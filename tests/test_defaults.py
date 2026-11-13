@@ -16,6 +16,15 @@ class TestCustomSchemaActivityCreation:
             assert activity.native_transaction_id > 0
             assert activity.verb == "insert"
 
+    def test_single_transaction_row_per_db_transaction(self):
+        db.session.add(User(name="Jack"))
+        db.session.flush()
+        db.session.add(User(name="John"))
+        db.session.flush()
+
+        stmt = sa.select(sa.func.count()).select_from(audit.Transaction)
+        assert db.session.scalar(stmt) == 1
+
     def test_activity_after_commit(self):
         user = User(name="Jack")
         db.session.add(user)

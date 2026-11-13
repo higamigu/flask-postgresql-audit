@@ -2,7 +2,6 @@ import typing as t
 
 import sqlalchemy as sa
 from sqlalchemy import ForeignKey
-from sqlalchemy.dialects.postgresql import ExcludeConstraint
 from sqlalchemy.orm import declared_attr, mapped_column, relationship
 
 from .base import ActivityBase, TransactionBase
@@ -69,9 +68,8 @@ def transaction_model_factory(
         @classmethod
         def __table_args__(cls):
             return (
-                ExcludeConstraint(
-                    (cls.native_transaction_id, "="),
-                    (cls.__transaction_interval__(), "&&"),
+                sa.UniqueConstraint(
+                    cls.native_transaction_id,
                     name="pga_transaction_unique_native_tx_id",
                 ),
                 {"schema": schema_name},

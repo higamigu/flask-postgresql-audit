@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import BigInteger, Text, func, text
+from sqlalchemy import BigInteger, Text
 from sqlalchemy.dialects.postgresql import INET, JSONB
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 
@@ -40,11 +40,6 @@ class TransactionBase:
     native_transaction_id: OMap[int] = mapped_column(BigInteger)
     issued_at: OMap[datetime]
     client_addr: OMap[str] = mapped_column(INET)
-
-    @classmethod
-    def __transaction_interval__(cls):
-        interval = text("INTERVAL '1 hour'")
-        return func.tsrange(cls.issued_at - interval, cls.issued_at)
 
     def __repr__(self):
         return (
