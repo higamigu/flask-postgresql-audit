@@ -54,7 +54,7 @@ def reorder_migration_ops(context, revision, directives: list[MigrationScript]):
     """
     Alembic directive listener that reorders upgrade operations into correct
     dependency order:
-    1. Schema creation & btree_gist extension
+    1. Schema creation
     2. Tables, indexes, foreign keys, etc.
     3. Triggers & Replaceable audit entities
     """
@@ -65,48 +65,34 @@ def reorder_migration_ops(context, revision, directives: list[MigrationScript]):
         upgrade_ops = directive.upgrade_ops.ops
 
         schema_ops = []
-        extension_ops = []
         trigger_ops = []
         other_ops = []
 
         for op in upgrade_ops:
             if isinstance(op, SchemaCreate):
                 schema_ops.append(op)
-            elif (
-                isinstance(op, CreateOp)
-                and getattr(op.target, "signature", None) == "btree_gist"
-            ):
-                extension_ops.append(op)
             elif isinstance(op, CreateOp):
                 trigger_ops.append(op)
             else:
                 other_ops.append(op)
 
         # Reassemble the ops sequence in strict dependency order
-        directive.upgrade_ops.ops = schema_ops + extension_ops + other_ops + trigger_ops
+        directive.upgrade_ops.ops = schema_ops + other_ops + trigger_ops
 
         if hasattr(directive, "downgrade_ops") and directive.downgrade_ops is not None:
             downgrade_ops = directive.downgrade_ops.ops
             d_schema_ops = []
-            d_extension_ops = []
             d_trigger_ops = []
             d_other_ops = []
             for op in downgrade_ops:
                 target = getattr(op, "target", None)
                 if isinstance(op, SchemaDrop):
                     d_schema_ops.append(op)
-                elif (
-                    target is not None
-                    and getattr(target, "signature", None) == "btree_gist"
-                ):
-                    d_extension_ops.append(op)
                 elif target is not None:
                     d_trigger_ops.append(op)
                 else:
                     d_other_ops.append(op)
-            directive.downgrade_ops.ops = (
-                d_trigger_ops + d_other_ops + d_extension_ops + d_schema_ops
-            )
+            directive.downgrade_ops.ops = d_trigger_ops + d_other_ops + d_schema_ops
 
 
 def chain_revision_directives(*callbacks):
@@ -123,7 +109,6 @@ def chain_revision_directives(*callbacks):
 
 
 def register_core_entities(audit: "PostgreSQLAudit"):
-    audit.pg_audit_entities.add(entities.btree_gist)
     audit.pg_audit_entities.add(entities.get_pk_values(**audit.context))
     audit.pg_audit_entities.add(entities.get_table_relid(**audit.context))
     audit.pg_audit_entities.add(entities.get_setting_factory(**audit.context))

@@ -1,10 +1,7 @@
-from alembic_utils.pg_extension import PGExtension
 from alembic_utils.pg_function import PGFunction
 from alembic_utils.pg_trigger import PGTrigger
 
 from ..utils import parse_template
-
-btree_gist = PGExtension(schema="public", signature="btree_gist")
 
 
 def create_activity_factory(**context):
