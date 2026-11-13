@@ -7,7 +7,7 @@ BEGIN
     _transaction_id := (
         SELECT id
         FROM ${schema_prefix}pga_transaction
-        WHERE native_transaction_id = txid_current()
+        WHERE native_transaction_id = pg_current_xact_id()
             AND issued_at >= (NOW() - INTERVAL '1 day')
         ORDER BY issued_at DESC
         LIMIT 1
@@ -27,7 +27,7 @@ BEGIN
             TG_TABLE_NAME::text AS table_name,
             TG_RELID AS relid,
             statement_timestamp() AT TIME ZONE 'UTC' AS issued_at,
-            txid_current() AS native_transaction_id,
+            pg_current_xact_id() AS native_transaction_id,
             LOWER(TG_OP) AS verb,
             ${schema_prefix}get_pk_values(TG_RELID, new_data) AS row_key,
             old_data - excluded_cols AS old_data,
@@ -56,7 +56,7 @@ BEGIN
             TG_TABLE_NAME::text AS table_name,
             TG_RELID AS relid,
             statement_timestamp() AT TIME ZONE 'UTC' AS issued_at,
-            txid_current() AS native_transaction_id,
+            pg_current_xact_id() AS native_transaction_id,
             LOWER(TG_OP) AS verb,
             ${schema_prefix}get_pk_values(TG_RELID, to_jsonb(new_table)) AS row_key,
             '{}'::jsonb AS old_data,
@@ -73,7 +73,7 @@ BEGIN
             TG_TABLE_NAME::text AS table_name,
             TG_RELID AS relid,
             statement_timestamp() AT TIME ZONE 'UTC' AS issued_at,
-            txid_current() AS native_transaction_id,
+            pg_current_xact_id() AS native_transaction_id,
             LOWER(TG_OP) AS verb,
             ${schema_prefix}get_pk_values(TG_RELID, to_jsonb(old_table)) AS row_key,
             row_to_json(old_table.*)::jsonb - excluded_cols AS old_data,

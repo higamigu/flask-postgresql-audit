@@ -5,6 +5,7 @@ from sqlalchemy import BigInteger, Text
 from sqlalchemy.dialects.postgresql import INET, JSONB
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 
+from .types import XID8
 from .typing import OMap
 
 
@@ -19,7 +20,7 @@ class ActivityBase:
 
     relid: OMap[int]
     issued_at: OMap[datetime]
-    native_transaction_id: OMap[int] = mapped_column(BigInteger, index=True)
+    native_transaction_id: OMap[int] = mapped_column(XID8, index=True)
     verb: OMap[str] = mapped_column(Text)
 
     row_key: OMap[list[str]] = mapped_column(JSONB, default=[], server_default="[]")
@@ -37,7 +38,7 @@ class TransactionBase:
         actor_id: declared_attr[Any]
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    native_transaction_id: OMap[int] = mapped_column(BigInteger)
+    native_transaction_id: OMap[int] = mapped_column(XID8)
     issued_at: OMap[datetime]
     client_addr: OMap[str] = mapped_column(INET)
 

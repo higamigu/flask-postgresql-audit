@@ -221,7 +221,7 @@ class PostgreSQLAudit:
     def insert_transaction(self, session: orm.Session):
         if self.pg_audit_enabled:
             values = {
-                "native_transaction_id": sa.func.txid_current(),
+                "native_transaction_id": sa.func.pg_current_xact_id(),
                 "issued_at": sa.text("NOW() AT TIME ZONE 'UTC'"),
                 "client_addr": self.get_client_addr(),
                 "actor_id": self.get_actor_id(),
