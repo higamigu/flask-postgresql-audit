@@ -265,6 +265,9 @@ context.configure(
 )
 ```
 
+`reorder_migration_ops` also adds the required `USING` clauses when
+`native_transaction_id` is migrated between `bigint` and `xid8`.
+
 ## Extensions
 
 ### Document Staging

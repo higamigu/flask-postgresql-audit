@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from . import entities
 from .schema import SchemaCreate, SchemaDrop
+from .xid8 import apply_xid8_type_changes, register_xid8_type
 
 if TYPE_CHECKING:
     from alembic_utils.replaceable_entity import ReplaceableEntity
@@ -24,6 +25,7 @@ logger = logging.getLogger("pg_audit.setup")
 
 
 def setup_db(audit: "PostgreSQLAudit"):
+    register_xid8_type()
     register_core_entities(audit)
     register_triggers(audit)
     register_entities(audit.pg_audit_entities)
@@ -58,6 +60,8 @@ def reorder_migration_ops(context, revision, directives: list[MigrationScript]):
     2. Tables, indexes, foreign keys, etc.
     3. Triggers & Replaceable audit entities
     """
+    apply_xid8_type_changes(directives)
+
     for directive in directives:
         if not hasattr(directive, "upgrade_ops") or directive.upgrade_ops is None:
             continue
