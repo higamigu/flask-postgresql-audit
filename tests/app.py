@@ -32,7 +32,7 @@ db = SQLAlchemy()
 audit = PostgreSQLAudit(schema_name=DefaultConfig.PGA_SCHEMA_NAME)
 
 
-class BaseModel(db.Model):
+class BaseModel(db.Model):  # ty: ignore[unsupported-base]
     __abstract__: bool = True
 
     if TYPE_CHECKING:

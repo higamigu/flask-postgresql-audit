@@ -11,6 +11,8 @@ blinker==1.9.0
     # via flask
 cachetools==8.0.0
     # via tox
+cfgv==3.5.0
+    # via pre-commit
 click==8.5.1
     # via flask
 colorama==0.4.6
@@ -32,6 +34,8 @@ flask-sqlalchemy==3.1.1
     # via flask-postgresql-audit
 flupy==1.2.5
     # via alembic-utils
+identify==2.6.20
+    # via pre-commit
 iniconfig==2.3.1
     # via pytest
 itsdangerous==2.2.0
@@ -46,6 +50,8 @@ markupsafe==3.0.4
     #   jinja2
     #   mako
     #   werkzeug
+nodeenv==1.12.0
+    # via pre-commit
 packaging==26.3
     # via
     #   pyproject-api
@@ -62,6 +68,7 @@ pluggy==1.7.0
     # via
     #   pytest
     #   tox
+pre-commit==4.7.0
 psycopg==3.3.9
     # via flask-postgresql-audit
 psycopg-binary==3.3.9 ; implementation_name != 'pypy'
@@ -76,6 +83,8 @@ python-discovery==1.9.5
     # via
     #   tox
     #   virtualenv
+pyyaml==6.0.3
+    # via pre-commit
 ruff==0.17.5
 setuptools==84.2.1
 sqlalchemy==2.1.8
@@ -86,6 +95,7 @@ sqlalchemy==2.1.8
 tomli-w==1.2.0
     # via tox
 tox==4.67.13
+ty==0.0.102
 typing-extensions==4.16.0
     # via
     #   alembic
@@ -96,6 +106,8 @@ typing-extensions==4.16.0
 tzdata==2026.6 ; sys_platform == 'win32'
     # via psycopg
 virtualenv==21.15.6
-    # via tox
+    # via
+    #   pre-commit
+    #   tox
 werkzeug==3.1.9
     # via flask

@@ -13,7 +13,7 @@ class TestCustomSchemaActivityCreation:
             assert activity.old_data == {}
             assert activity.changed_data == {"id": user.id, "name": "John", "age": 15}
             assert activity.table_name == "user"
-            assert activity.native_transaction_id > 0  # type: ignore
+            assert activity.native_transaction_id > 0
             assert activity.verb == "insert"
 
     def test_activity_after_commit(self):

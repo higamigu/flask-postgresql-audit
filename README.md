@@ -325,3 +325,12 @@ Automatically detects and tracks custom `CREATE AGGREGATE` definitions during `a
 By default the test suite runs against psycopg 3. To run it against psycopg2:
 
     POSTGRES_DRIVER=psycopg2 tox -e py315-schemaDefault-psycopg2
+
+## Pre-commit hooks
+
+The repository uses [pre-commit](https://pre-commit.com/) to run Ruff and the
+[ty](https://github.com/astral-sh/ty) type checker before each commit:
+
+    pip install pre-commit
+    pre-commit install
+    pre-commit run --all-files

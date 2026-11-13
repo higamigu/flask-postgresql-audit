@@ -134,10 +134,12 @@ def _default_actor_id() -> int | str | None:
 
 def _default_client_addr() -> str | None:
     try:
-        from flask import request
+        from flask import has_request_context, request
     except ImportError:
         return None
-    return (request and request.remote_addr) or None
+    if not has_request_context():
+        return None
+    return request.remote_addr
 
 
 class PostgreSQLAudit:
@@ -314,7 +316,7 @@ class PostgreSQLAudit:
         )
 
         if inspect.isclass(obj):
-            class_ = obj
+            class_ = t.cast(type[Audit], obj)
             stmt = stmt.filter(self.Activity.table_name == class_.__tablename__)
 
         else:

@@ -9,6 +9,7 @@ release.
 -   Keep psycopg2 support available through the `psycopg2` optional dependency extra.
 -   Add support for Python 3.14 and 3.15.
 -   Run the test suite against both psycopg 3 and psycopg2.
+-   Add pre-commit hooks for Ruff and the ty type checker.
 
 ## 1.1.3 (2026-08-21)
 

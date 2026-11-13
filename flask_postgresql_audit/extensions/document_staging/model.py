@@ -41,8 +41,8 @@ class DocumentStaging:
         if not getattr(class_, "__staging_configured__", False):
             table = class_.__table__
 
-            pk_cols = []
-            fk_cols = []
+            pk_cols: list[sa.ColumnClause[t.Any]] = []
+            fk_cols: list[sa.ColumnClause[t.Any]] = []
 
             for pk in table.primary_key.columns:
                 fk_name = f"revision_{pk.name}"

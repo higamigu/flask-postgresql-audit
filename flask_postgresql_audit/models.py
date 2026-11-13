@@ -26,7 +26,7 @@ def activity_model_factory(
     schema_name: str | None = None,
     **kwargs,
 ):
-    class PGAuditActivity(base_cls, activity_base):
+    class PGAuditActivity(base_cls, activity_base):  # ty: ignore[unsupported-base]
         __tablename__ = "pga_activity"
         __table_args__: t.ClassVar[dict[str, t.Any]] = {"schema": schema_name}
 
@@ -53,13 +53,13 @@ def transaction_model_factory(
 
         actor_pk = actor_mapper.primary_key[0]
 
-    class PGAuditTransaction(base_cls, transaction_base):
+    class PGAuditTransaction(base_cls, transaction_base):  # ty: ignore[unsupported-base]
         __tablename__ = "pga_transaction"
 
         @declared_attr
         def actor_id(cls) -> OMap[t.Any]:
             if actor_cls:
-                return mapped_column(actor_pk.type, ForeignKey(actor_pk))  # type: ignore
+                return mapped_column(actor_pk.type, ForeignKey(actor_pk))
             return mapped_column(sa.Text)
 
         if actor_cls:
