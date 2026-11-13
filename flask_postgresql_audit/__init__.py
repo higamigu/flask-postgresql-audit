@@ -1,4 +1,4 @@
 # ruff: noqa: F401
 from .core import Audit, PostgreSQLAudit
 
-__version__ = "1.1.3"
+__version__ = "1.2.0"

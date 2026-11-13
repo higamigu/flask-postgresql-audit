@@ -3,7 +3,7 @@
 Here you can see the full list of changes between each Flask-PostgreSQL-Audit
 release.
 
-## Unreleased
+## 1.2.0 (2026-11-13)
 
 -   Add support for psycopg 3 and make it the default PostgreSQL driver.
 -   Keep psycopg2 support available through the `psycopg2` optional dependency extra.
