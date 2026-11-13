@@ -326,6 +326,18 @@ By default the test suite runs against psycopg 3. To run it against psycopg2:
 
     POSTGRES_DRIVER=psycopg2 tox -e py315-schemaDefault-psycopg2
 
+To run every tox environment in one command:
+
+    uv run python scripts/run_tox_matrix.py
+
+The script starts a temporary PostgreSQL container, runs each environment
+sequentially, skips Python versions that are not installed, and prints a
+pass/skip/fail summary. Install missing interpreters with
+`mise install python@3.13` or `uv python install 3.13` to include them. Use
+`--verbose` to stream test output, `--fail-fast` to stop at the first failure,
+`--no-postgres` to use an existing database, or `--keep-postgres` to leave the
+container running for debugging.
+
 ## Pre-commit hooks
 
 The repository uses [pre-commit](https://pre-commit.com/) to run Ruff and the
