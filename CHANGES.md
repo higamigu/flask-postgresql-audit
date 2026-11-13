@@ -13,6 +13,9 @@ release.
 -   Add PostgreSQL 15 through 18 as a tox matrix dimension.
 -   Run the tox matrix in parallel with isolated per-worker databases and migrations, capped by the number of PostgreSQL containers.
 -   Add `scripts/run_tox_matrix.py` to run the full tox matrix with one command, including temporary PostgreSQL containers.
+-   Replace deprecated `txid_current()` with `pg_current_xact_id()` and store `native_transaction_id` as PostgreSQL `xid8`. Existing `bigint` columns are migrated with `USING native_transaction_id::text::xid8` when `reorder_migration_ops` is used.
+-   Replace the `native_transaction_id` exclusion constraint with a unique constraint. This keeps one transaction row per database transaction without requiring the `btree_gist` extension, which is no longer created.
+-   Add Alembic autogenerate support for `xid8`, including type reflection and `USING` clauses when `native_transaction_id` changes between `bigint` and `xid8`.
 
 ## 1.1.3 (2026-08-21)
 
