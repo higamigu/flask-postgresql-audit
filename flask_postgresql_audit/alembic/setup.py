@@ -12,6 +12,7 @@ from sqlalchemy import Connection, text
 from sqlalchemy.orm import Session
 
 from . import entities
+from .constraint import legacy_constraint_op
 from .schema import SchemaCreate, SchemaDrop
 from .xid8 import apply_xid8_type_changes, register_xid8_type
 
@@ -66,6 +67,14 @@ def setup_db(audit: "PostgreSQLAudit"):
                 text(check_schema), {"name": audit.context["schema_name"]}
             ):
                 upgrade_ops.ops.append(SchemaCreate(audit.context["schema_name"]))
+
+            # Alembic cannot reflect exclusion constraints, so the legacy
+            # native transaction ID constraint of 1.0.x must be dropped
+            # explicitly before the unique constraint of 1.1.x is created.
+            if constraint_op := legacy_constraint_op(
+                connection, audit.context["schema_name"]
+            ):
+                upgrade_ops.ops.append(constraint_op)
 
             for ent in audit.pg_audit_entities:
                 if op := get_blind_migration_op(ent, connection):

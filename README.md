@@ -266,7 +266,11 @@ context.configure(
 ```
 
 `reorder_migration_ops` also adds the required `USING` clauses when
-`native_transaction_id` is migrated between `bigint` and `xid8`.
+`native_transaction_id` is migrated between `bigint` and `xid8`. When the
+database still has the `1.0.x` exclusion constraint on
+`pga_transaction.native_transaction_id`, autogenerate drops it before creating
+the replacement unique constraint and restores it again on downgrade, so the
+generated migration can be applied as-is.
 
 ## Extensions
 

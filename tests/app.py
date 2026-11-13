@@ -25,7 +25,10 @@ class DefaultConfig:
     SQLALCHEMY_DATABASE_URI = f"postgresql+{DB_DRIVER}://{DB_USER}:{DB_PASSWORD}@localhost:{DB_PORT}/{DB_NAME}"
     SQLALCHEMY_ECHO = False
 
-    PGA_SCHEMA_NAME = os.environ.get("SCHEMA_NAME", None)
+    # An empty SCHEMA_NAME means "use the default schema", not a schema
+    # literally named "". Passing "" down to SQLAlchemy puts the audit tables
+    # in an "" schema, which autogenerate cannot match against reflection.
+    PGA_SCHEMA_NAME = os.environ.get("SCHEMA_NAME") or None
 
 
 db = SQLAlchemy()

@@ -13,6 +13,11 @@ ALEMBIC_CONFIG = Path(
 
 
 @pytest.fixture(scope="session")
+def alembic_config_path():
+    return ALEMBIC_CONFIG
+
+
+@pytest.fixture(scope="session")
 def test_client():
     test_client = app.test_client()
     with app.app_context(), alembic_migration(db, ALEMBIC_CONFIG):

@@ -1,4 +1,5 @@
 # ruff: noqa: F401
+from .constraint import NativeTransactionConstraintOp, legacy_constraint_op
 from .setup import (
     chain_revision_directives,
     register_triggers,
