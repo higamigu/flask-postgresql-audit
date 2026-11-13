@@ -23,6 +23,25 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("pg_audit.setup")
 
+# Entities temporarily removed from the alembic_utils registry while blind
+# create operations are generated. They are re-registered after autogenerate
+# so a second autogenerate in the same process (test suites, compare_metadata)
+# still sees them.
+_blind_entities: list["ReplaceableEntity"] = []
+
+
+def restore_blind_entities() -> None:
+    """Re-register entities hidden by a previous blind-create comparison."""
+    if _blind_entities:
+        registry.register(_blind_entities)
+        _blind_entities.clear()
+
+
+def _hide_registry_entity(entity: "ReplaceableEntity") -> None:
+    hidden = registry._entities.pop(entity.identity, None)
+    if hidden is not None:
+        _blind_entities.append(hidden)
+
 
 def setup_db(audit: "PostgreSQLAudit"):
     register_xid8_type()
@@ -36,6 +55,8 @@ def setup_db(audit: "PostgreSQLAudit"):
         upgrade_ops: ops.UpgradeOps,
         schemas: set[None] | set[str | None],
     ) -> None:
+        restore_blind_entities()
+
         if connection := autogen_context.connection:
             check_schema = """
                 SELECT TRUE FROM information_schema.schemata
@@ -48,7 +69,7 @@ def setup_db(audit: "PostgreSQLAudit"):
 
             for ent in audit.pg_audit_entities:
                 if op := get_blind_migration_op(ent, connection):
-                    registry._entities.pop(ent.identity, None)
+                    _hide_registry_entity(ent)
                     upgrade_ops.ops.append(op)
 
 
@@ -97,6 +118,8 @@ def reorder_migration_ops(context, revision, directives: list[MigrationScript]):
                 else:
                     d_other_ops.append(op)
             directive.downgrade_ops.ops = d_trigger_ops + d_other_ops + d_schema_ops
+
+    restore_blind_entities()
 
 
 def chain_revision_directives(*callbacks):
